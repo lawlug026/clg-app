@@ -12,7 +12,7 @@ var con = sql.createConnection({
 	host:"localhost",
 	user:"root",
 	password:"notdefined",
-	database:"practice"
+	database:"cbpgec"
 });
 
 con.connect(function(err){
