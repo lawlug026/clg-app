@@ -55,8 +55,14 @@ app.post('/login', function(req, res){
 app.post('/test2', function(req, res){
 	var a1 = req.query.id;
 	var a2 = req.query.pass;
-	console.log(a1+a2);
-	res.send('query success'+a1+a2);
+	var stmt = "select * from logindata where roll = '"+a1+"' && password = '"+a2+"';";
+	con.query(stmt, function(err, result){
+		if (err) throw err;
+		else if (result[0].password == a2){
+			res.send("Login Success with" + a1 + '' + a2);
+		}
+	}
+	)
 })
 
 // app.get('/ass', function(req, res){
