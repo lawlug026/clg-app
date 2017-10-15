@@ -6,6 +6,8 @@ const sql = require('mysql');
 
 const app = express();
 
+const Basictoken = 'cbpgec-a24-u26-n20-p21';
+
 // var con = sql.createConnection({
 // 	host:"localhost",
 // 	user:"root",
@@ -54,7 +56,7 @@ app.post('/test2', function(req, res){
 	var a1 = req.query.id;
 	var a2 = req.query.pass;
 	console.log(a1+a2);
-	res.send('query success');
+	res.send('query success'+a1+a2);
 })
 
 // app.get('/ass', function(req, res){
