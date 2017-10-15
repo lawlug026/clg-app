@@ -6,17 +6,17 @@ const sql = require('mysql');
 
 const app = express();
 
-var con = sql.createConnection({
-	host:"localhost",
-	user:"root",
-	password:"notdefined",
-	database:"practice"
-});
+// var con = sql.createConnection({
+// 	host:"localhost",
+// 	user:"root",
+// 	password:"notdefined",
+// 	database:"practice"
+// });
 
-con.connect(function(err){
-	if (err) throw err;
-	console.log("connected");
-	});
+// con.connect(function(err){
+// 	if (err) throw err;
+// 	console.log("connected");
+// 	});
 
 
 
@@ -34,21 +34,21 @@ app.get('/test', function(req, res){
     res.sendfile("form.html");
 })
 
-app.post('/login', function(req, res){
-	var roll = req.body.roll;
-	var pass = req.body.pass;
-	var stmt = "select * from logindata where roll = '"+roll+"' && password = '"+pass+"';";
-	con.query(stmt, function(err, result){
-		if (err) throw err;
-		else if (result[0].password = pass){
-			res.send("Login Success");
-		}
-	}
-		)
-	}
+// app.post('/login', function(req, res){
+// 	var roll = req.body.roll;
+// 	var pass = req.body.pass;
+// 	var stmt = "select * from logindata where roll = '"+roll+"' && password = '"+pass+"';";
+// 	con.query(stmt, function(err, result){
+// 		if (err) throw err;
+// 		else if (result[0].password = pass){
+// 			res.send("Login Success");
+// 		}
+// 	}
+// 		)
+// 	}
 	
 
-);
+// );
 
 app.post('/test2', function(req, res){
 	var a1 = req.query.id;
