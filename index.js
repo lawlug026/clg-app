@@ -77,7 +77,7 @@ app.post('/login', function(req, res)
 								var name = result[0].password;	
 
 
-								var stmt1 = "INSERT into bearer VALUES('"+Bearer+"', '"+roll+"', '"+name+"' );";
+								var stmt1 = "INSERT into bearer VALUES('"+Bearer+"', '"+roll+"');";
 								con.query(stmt1, function(err, result){
 									if (err) throw err;
 									else console.log("Insertion successful");
