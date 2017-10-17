@@ -73,11 +73,14 @@ app.post('/login', function(req, res)
 						{
 							if (result[0].password == a2)
 							{
-							
-								var stmt1 = "UPDATE logindata SET token = '"+ Bearer + "' WHERE roll = '" + a1 + "';";
+								var roll = result[0].roll;
+								var name = result[0].password;	
+
+
+								var stmt1 = "INSERT into bearer VALUES('"+Bearer+"', '"+roll+"', '"+name+"' );";
 								con.query(stmt1, function(err, result){
 									if (err) throw err;
-									else console.log("Updation successful");
+									else console.log("Insertion successful");
 								});
 								res.send("Login Success with" + a1 + '' + a2+ "Bearer Token" + Bearer);
 								Bearer+=1;
@@ -166,13 +169,15 @@ var MysqlJson = require('mysql-json');
     password:'notdefined',
     database:'cbpgec'
   });
-var temp = 1;
-var assID = 'ass';
+var temp = 0;
+var assID;
 app.post('/assignment', function(req, res, next){
+	assID = 'ass'+temp;
+
 	
 
 	var bear = req.query.bear;
-	var stmt2 = "select * from logindata where token = '"+ bear+"';";
+	var stmt2 = "select * from bearer where bear = '"+ bear+"';";
 	con.query(stmt2, function(err, data){
 		if (err) throw err;
 		else
@@ -201,17 +206,10 @@ app.post('/assignment', function(req, res, next){
 						if (err) throw err;
 						console.log("Table created");
 						next();
-					})
-
-					
+						res.send("success");
+					})					
 			}
-
-			
-
-
-
 		}
-
 	})
 }, function(){
 						for(i=0; i<assData.ques.length;i++)
@@ -227,6 +225,7 @@ app.post('/assignment', function(req, res, next){
 					  });
 					}
 					temp+=1;
+					
 
 					})
 
