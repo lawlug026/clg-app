@@ -42,7 +42,7 @@ app.post('/login', function(req, res){
 	var stmt = "select * from logindata where roll = '"+roll+"' && password = '"+pass+"';";
 	con.query(stmt, function(err, result){
 		if (err) throw err;
-		else if (result[0].password = pass){
+		else if (result[0].password == pass){
 			res.send("Login Success");
 		}
 	}
@@ -58,7 +58,7 @@ app.post('/test2', function(req, res){
 	var stmt = "select * from logindata where roll = '"+a1+"' && password = '"+a2+"';";
 	con.query(stmt, function(err, result){
 		if (err) throw err;
-		else if (result[0].password == a2){
+		else if ( result[0].password == a2 ){
 			res.send("Login Success with" + a1 + '' + a2);
 		}
 	}
