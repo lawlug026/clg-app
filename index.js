@@ -4,11 +4,11 @@ const path = require('path');
 const http = require('http');
 const bodyParser = require('body-parser');
 const sql = require('mysql');
-
+var cors = require('cors');
 
 const app = express();
 //Initialising the basic token
-
+app.use(cors());
 var con = sql.createConnection({
 	host: "localhost",
 	user: "root",
