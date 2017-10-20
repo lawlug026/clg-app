@@ -4,7 +4,7 @@ const path = require('path');
 const http = require('http');
 const bodyParser = require('body-parser');
 const sql = require('mysql');
-
+var basicAuthToken = require('express-basic-token');
 const app = express();
 //Initialising the basic token
 const Basictoken = 'cbpgec-a24-u26-n20-p21';
@@ -52,15 +52,17 @@ app.get('/test', function(req, res){
 	
 
 // );
-var Bearer = 12;
+var Bearer = 456;
+app.use('/login', basicAuthToken({ token: 'cbpgec' }));
 
 app.post('/login', function(req, res)
 	{
+		
 		var a1 = req.query.id;
 		var a2 = req.query.pass;
 		var a3 = req.query.basic;
-		if (a3 == Basictoken)
-			{
+		// if (a3 == Basictoken)
+		// 	{
 				var stmt = "select * from logindata where roll = '"+a1+"';";
 				con.query(stmt, function(err, result)
 				{
@@ -95,10 +97,10 @@ app.post('/login', function(req, res)
 				}
 				)
 				
-			}
-		else{
-			res.send("Wrong Authentication");
-		}
+		// 	}
+		// else{
+		// 	res.send("Wrong Authentication");
+		
 
 		
 	});
