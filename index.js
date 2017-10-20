@@ -12,7 +12,7 @@ const app = express();
 var con = sql.createConnection({
 	host: "localhost",
 	user: "root",
-	password: "notdefined",
+	password: "abhay",
 	database: "cbpgec"
 });
 
@@ -58,68 +58,71 @@ var Bearer = 0;
 app.post('/login', function (req, res, next) {
 
 	var a1 = req.query.id;
-	console.log(a1);
 	var a2 = req.query.pass;
 	console.log(a2);
+	console.log(a1)
 	var a4 = JSON.parse(JSON.stringify(req.headers));
 	console.log(a4.authorization);
 
-	// if (a3 == Basictoken)
-	// 	{
-	var stmt = "select * from logindata where roll = '" + a1 + "';";
-	con.query(stmt, function (err, result) {
-		if (err) { res.send("Invalid User"); }
-		else {
-			console.log("Inside user checkig");
-			if (!result[0]) { res.send("Invalid User frm db"); }
+	if( a4.authorization == 'Basic cbpgec-a24-u26-n20-p21'){
+		
+		var stmt = `select * from logindata where roll = ${a1} && password = '${a2}'`;
+		console.log(stmt);
+		con.query(stmt, function (err, result) {
+			if (err) {
+				// console.log(err); 
+				res.send("Invalid Credentials dvfd"); }
 			else {
-				if (result[0].password == a2) {
-					var roll = result[0].roll;
-					var name = result[0].password;
-					var stm = "select bear from bearer";
-					con.query(stm, function (err, res1) {
-						if (err) throw err;
-						else {
-							if (res1.length == 0) {
-								Bearer = 1;
-							}
-							else {
-								// var i = res.length();
-								console.log(res1.length);
-								var ln = res1.length - 1;
-								Bearer = res1[ln].bear + 1;
-							}
-							console.log(Bearer);
-
-						}
-					});
-					var stmt1 = "INSERT into bearer VALUES(" + Bearer + ", '" + roll + "');";
-					con.query(stmt1, function (err, result) {
-						if (err) throw err;
-						else console.log("Insertion successful");
-					});
-
-					res.send("Login Success with" + a1 + '' + a2 + "Bearer Token" + Bearer);
-
-				}
+				console.log("Inside user checkig");
+				if (result.length == 0) { res.send("Invalid Credentials"); }
 				else {
-					res.send("Wrong Credentials");
+						var roll = result[0].roll;
+						var name = result[0].password;
+						var stm = "select bear from bearer";
+						con.query(stm, (err, res1) => {
+							if (err) throw err;
+							else {
+								if (res1.length == 0) {
+									Bearer = 1;
+								}
+								else {
+									// var i = res.length();
+									console.log(res1.length);
+									var ln = res1.length - 1;
+									Bearer = parseInt(res1[ln].bear) + 1;
+								}
+								console.log(Bearer);
+								Bearer = func(Bearer,roll);
+								res.send("Login Success with" + a1 + '' + a2 + "Bearer Token" + Bearer);
+							}
+						});
 				}
 			}
-
-
 		}
+		)
+	
 	}
-	)
+	else{
+		res.send("Access Denied");
+	}
 
 	// 	}
 	// else{
 	// 	res.send("Wrong Authentication");
 
-
-
 });
 
+var func = (bearer,roll) => {
+	console.log("st" + bearer);
+	var stmt1 = "INSERT into bearer VALUES(" + bearer + ", '" + roll + "');";
+	con.query(stmt1, function (err, result) {
+		if (err) throw err;
+		else console.log("Insertion successful");
+	});
+	console.log("Inside func");
+	console.log(bearer);
+	return bearer;
+}
 
 app.post('/form', function (req, res) {
 	var bear = req.query.bearer;
@@ -181,7 +184,7 @@ var MysqlJson = require('mysql-json');
 var mysqlJson = new MysqlJson({
 	host: 'localhost',
 	user: 'root',
-	password: 'notdefined',
+	password: 'abhay',
 	database: 'cbpgec'
 });
 var temp = 0;
