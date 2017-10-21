@@ -12,7 +12,7 @@ app.use(cors());
 var con = sql.createConnection({
 	host: "localhost",
 	user: "root",
-	password: "abhay",
+	password: "notdefined",
 	database: "cbpgec"
 });
 
@@ -69,12 +69,14 @@ app.post('/login', function (req, res, next) {
 		var stmt = `select * from logindata where roll = ${a1} && password = '${a2}'`;
 		console.log(stmt);
 		con.query(stmt, function (err, result) {
+			res.setHeader('Content-Type', 'application/json');
 			if (err) {
-				// console.log(err); 
-				res.send("Invalid Credentials dvfd"); }
+				// console.log(err);
+				 
+				res.send(JSON.stringify({ error : 'Invalid Credentials dvfd'})); }
 			else {
 				console.log("Inside user checkig");
-				if (result.length == 0) { res.send("Invalid Credentials"); }
+				if (result.length == 0) { res.send(JSON.stringify({'error' : 'Invalid Credentials'})); }
 				else {
 						var roll = result[0].roll;
 						var name = result[0].password;
@@ -93,7 +95,7 @@ app.post('/login', function (req, res, next) {
 								}
 								console.log(Bearer);
 								Bearer = func(Bearer,roll);
-								res.send("Login Success with" + a1 + '' + a2 + "Bearer Token" + Bearer);
+								res.send(JSON.stringify({access_token : Bearer}));
 							}
 						});
 				}
@@ -184,7 +186,7 @@ var MysqlJson = require('mysql-json');
 var mysqlJson = new MysqlJson({
 	host: 'localhost',
 	user: 'root',
-	password: 'abhay',
+	password: 'notdefined',
 	database: 'cbpgec'
 });
 var temp = 0;
