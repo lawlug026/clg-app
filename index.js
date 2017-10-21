@@ -12,7 +12,7 @@ app.use(cors());
 var con = sql.createConnection({
 	host: "localhost",
 	user: "root",
-	password: "notdefined",
+	password: "abhay",
 	database: "cbpgec"
 });
 
@@ -80,6 +80,8 @@ app.post('/login', function (req, res, next) {
 				else {
 						var roll = result[0].roll;
 						var name = result[0].password;
+						var email = result[0].email;
+						var semester = result[0].semester;
 						var stm = "select bear from bearer";
 						con.query(stm, (err, res1) => {
 							if (err) throw err;
@@ -95,7 +97,7 @@ app.post('/login', function (req, res, next) {
 								}
 								console.log(Bearer);
 								Bearer = func(Bearer,roll);
-								res.send(JSON.stringify({access_token : Bearer}));
+								res.send(JSON.stringify({access_token : Bearer, id : roll, email : email, semester :semester}));
 							}
 						});
 				}
@@ -141,42 +143,6 @@ app.post('/form', function (req, res) {
 	})
 });
 
-var assData =
-	{
-		'date': '12-10-2017',
-		'heading': 'abc',
-		'ques': [
-
-			{
-				'qu1': "jhsdb",
-				'op1': "12",
-				'op2': "13",
-				'opq': "321"
-			},
-
-			{
-				'qu1': "jhsdb",
-				'op1': "12",
-				'op2': "13",
-				'opq': "321"
-			},
-
-			{
-				'qu1': "jhsdb",
-				'op1': "12",
-				'op2': "13",
-				'opq': "321"
-			},
-
-			{
-				'qu1': "jhsdb",
-				'op1': "12",
-				'op2': "13",
-				'opq': "321"
-			},
-		],
-		'ans': 'q1'
-	}
 
 
 
@@ -186,66 +152,220 @@ var MysqlJson = require('mysql-json');
 var mysqlJson = new MysqlJson({
 	host: 'localhost',
 	user: 'root',
-	password: 'notdefined',
+	password: 'abhay',
 	database: 'cbpgec'
 });
 var temp = 0;
 var assID;
+
+
+
+
+
+//assignment create
+
+var MysqlJson = require('mysql-json');
+var mysqlJson = new MysqlJson({
+	host: 'localhost',
+	user: 'root',
+	password: 'abhay',
+	database: 'cbpgec'
+});
+var t
+var assID;
 app.post('/assignment', function (req, res, next) {
 	assID = 'ass' + temp;
-
-
-
-	var bear = req.query.bear;
-	var stmt2 = "select * from bearer where bear = '" + bear + "';";
+	var bear = req.headers.authorization;
+	var bear = bear.substring(7, bear.length);
+	console.log(bear);
+	var stmt2 = `select * from bearer where bear = ${bear}`;
+	var assData = req.body;
+	console.log(req.body);
 	con.query(stmt2, function (err, data) {
 		if (err) throw err;
 		else {
-			if (!data[0]) { res.send("Teacher not available Or session expired...Login Again"); }
+			if (!data[0]) { res.send('Access Denied'); }
 			else {
-				console.log(data[0].roll + "submitted the assignment");
-
-
-				mysqlJson.insert('assignment', {
-					assid: assID,
-					date: assData.date,
-					heading: assData.heading,
-					ans: assData.ans
-				}, function (err, response) {
-					console.log("checkpoint1");
+				console.log("working");
+				var stm = `select assid from assignment`;
+				con.query(stm, function (err, res1) {
 					if (err) throw err;
-					console.log(response);
+					else {
+						if (res1.length == 0) {
+							assId = 1;
+						}
+						else {
+							// var i = res.length();
+							console.log(res1.length);
+							var ln = res1.length - 1;
+							assId = parseInt(res1[ln].assid) + 1;
+						}
+						console.log(assId);
+						newAssignment(assData,assId,res);
+					}
 				});
-
-				var stmt5 = 'create table ' + assID + ' (ques varchar(255), op1 char(20), op2 char(20));';
-				console.log(stmt5);
-				console.log("statmenet paasesed");
-				con.query(stmt5, function (err, result) {
-					if (err) throw err;
-					console.log("Table created");
-					next();
-					res.send("success");
-				})
+				console.log(data[0].roll + "submitted the assignment");
 			}
 		}
 	})
-}, function () {
+})
+
+var newAssignment = (assData,id,res) => {
+	console.log(assData);
+	mysqlJson.insert('assignment', {
+		assid: id,
+		date: assData.date,
+		dateOfTest: assData.dateOfTest,
+		startTime: assData.stTime,
+		endTime: assData.endTime,
+		semester: assData.semester,
+		subject: assData.subject,
+		department: assData.department,
+		heading: assData.heading,
+		teacherId : assData.teacherId
+	}, function (err, response) {
+		console.log("checkpoint1");
+		if (err) throw err;
+		console.log("assignment added");
+		console.log(response);
+	});
+	
+	var stmt6 = `create table assSol${id} (studentId char(20)`;
+	for(let ques=0; ques < assData.ques.length; ques++){
+		stmt6 += `, ques${ques + 1} varchar(255)`;
+	}
+	stmt6 += ');';
+	console.log(stmt6);
+	con.query(stmt6, (err,result)=>{
+		if(err) throw err;
+		else{
+			console.log("sol table ");
+		}
+	})
+	var stmt5 = 'create table ass' + id + ' (ques varchar(255), answer char(40) , op1 char(20) , op2 char(20), op3 char(20), op4 char(20));';
+	console.log(stmt5);
+	console.log("statmenet paasesed");
+	con.query(stmt5, function (err, result) {
+		if (err) throw err;
+		console.log("Table created");
+		insertQuestions(assData,id);
+		res.send("success");
+	})
+}
+
+function insertQuestions (assData,id) {
 	for (i = 0; i < assData.ques.length; i++) {
-		mysqlJson.insert(assID, {
+		mysqlJson.insert('ass'+id, {
 			ques: assData.ques[i].qu1,
 			op1: assData.ques[i].op1,
-			op2: assData.ques[i].op2
+			op2: assData.ques[i].op2,
+			answer : assData.ques[i].answer,
+			op3 : assData.ques[i].op3,
+			op4 : assData.ques[i].op4
 
 		}, function (err, response) {
 			if (err) throw err;
 			console.log(response);
 		});
 	}
-	temp += 1;
+}
 
+//teacher fetch
+app.get('/assignment/semester/:sem/student/:id', ( req, res) => {
+	console.log( req.params.id );
+	console.log( req.params.sem);
 
+	var queryStmt = `select * from assignment where semester = ${req.params.sem}`;
+	con.query(queryStmt, (err,data)=>{
+		if(err) throw err;
+		else{
+			if(!data[0]){
+				res.send('No assignments Available');
+			}
+			else{
+				var array = [];
+				console.log(data.length);
+				for(let dat of data){
+					var obj = {
+						assid : dat.assid,
+						heading : dat.heading,
+						teacherId : dat.teacherId,
+						semester : dat.semester,
+						startTime : dat.startTime,
+						endTime : dat.endTime,
+						date : dat.date,
+						subject : dat.subject,
+						dateOfTest : dat.dateOfTest,
+						department : dat.department
+					}
+
+					array.push(obj);
+				}
+				res.send(array);
+			}
+		}
+	})
 })
 
+app.get('/assignment/semester/:sem/teacher/:id', ( req, res) => {
+	console.log( req.params.id );
+	console.log( req.params.sem);
+
+	var queryStmt = `select * from assignment where teacherId = ${req.params.id}`;
+	con.query(queryStmt, (err,data)=>{
+		if(err) throw err;
+		else{
+			if(!data[0]){
+				res.send('No assignments Available');
+			}
+			else{
+				var array = [];
+				console.log(data.length);
+				for(let dat of data){
+					var obj = {
+						assid : dat.assid,
+						heading : dat.heading,
+						teacherId : dat.teacherId,
+						semester : dat.semester,
+						startTime : dat.startTime,
+						endTime : dat.endTime,
+						date : dat.date,
+						subject : dat.subject,
+						dateOfTest : dat.dateOfTest,
+						department : dat.department
+					}
+					array.push(obj);
+				}
+				res.send(array);
+			}
+		}
+	})
+})
+
+
+app.get('/assignment/byId/:id', (req,res) => {
+	console.log(req.params.id);
+	var tableName = 'ass' + req.params.id;
+	var queryStmt = `select * from ${tableName}`;
+	var array = [];
+	con.query(queryStmt, (err,data) => {
+		if(err) throw err;
+		else{
+			for( let ques of data){
+				var obj = {
+					ques : ques.ques,
+					answer : ques.answer,
+					op1 : ques.op1,
+					op2 : ques.op2,
+					op3 : ques.op3,
+					op4 : ques.op4
+				}
+				array.push(obj);
+			}
+			res.send(array);
+		}
+	})
+})
 
 
 // app.get('/ass', function(req, res){
@@ -258,6 +378,7 @@ app.post('/assignment', function (req, res, next) {
 
 // // Catch all other routes and return the index file
 app.get('*', (req, res) => {
+	console.log("main");
 	res.sendFile(path.join(__dirname, 'dist/index.html'));
 });
 
