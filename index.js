@@ -477,7 +477,7 @@ var insert = function(tableName, assData, res){
 	con.query(`INSERT INTO ${tableName} SET ?`, assData, function (err, result) {
 		if (err) throw err;
 		else {
-			res.send('success');
+		
 		}
 	});
 }
@@ -577,24 +577,40 @@ app.get('/details/teacher/page/:page', (req, res) => {
 // } 
 // })
 //Insert teacher details
-app.post('/form/insert/teacher', (req, res) => {
-	var check = req.check;
-	if (check) { res.send('Access Denied'); }
-	else
-{
-	var assData = req.body;
-	insert('teacher', assData, res);	 
-}
-})
+// app.post('/form/insert/teacher', (req, res) => {
+// 	var check = req.check;
+// 	if (check) { res.send('Access Denied'); }
+// 	else
+// {
+// 	var assData = req.body;
+// 	insert('teacher', assData, res);	 
+// }
+// })
 
-//Delete form details
+
+//Delete form details student
 app.delete('/form/delete/student/:stid', (req, res) => {
 	var check = req.check;
 	if (check) { res.send('Access Denied'); }
 	else
 {
 	var stid = req.params.stid;
-	deleteData('form', 'roll', stid, res);
+	deleteData('form', 'roll', stid);
+	deleteData('logindata', 'roll', stid);
+	res.send(JSON.stringify({message:'Student Deletion Successful'}));
+}
+})
+//delete teacher
+app.delete('/form/delete/teacher/:tid', (req, res) => {
+	var check = req.check;
+	if (check) { res.send('Access Denied'); }
+	else
+{
+	var tid = req.params.tid;
+	deleteData('teacher', 'teacherId', tid);
+	deleteData('teaches', 'teacherId', tid);
+	deleteData('logindata', 'roll', tid);
+	res.send(JSON.stringify({message:'Teacher Deletion Successful'}));
 }
 })
 
@@ -604,7 +620,7 @@ var deleteData = function (tableName, row, id, res){
 	con.query(delstm, (err, data) => {
 		if(err) throw err;
 		else{
-			res.send("delete Success");
+			
 		}
 	})
 }
@@ -632,7 +648,7 @@ var update = function(tableName, assData, row, id, res){
 
 
 //Insert form details
-app.post('/form/insert/student/:stdid', (req, res) => {
+app.post('/form/insert/student', (req, res) => {
 	var check = req.check;
 	if (check) { res.send('Access Denied'); }
 	else
@@ -640,7 +656,14 @@ app.post('/form/insert/student/:stdid', (req, res) => {
 	var assData = req.body;
 	insert('form', assData, res);
 	var indexSpace = assData.name.indexOf(" ");
-	var password = assData.name.substring(0, indexSpace).toLowerCase();
+	var password;
+	if(indexSpace > 0){
+		password = assData.name.substring(0, indexSpace).toLowerCase();
+	}
+	else{
+		password = assData.name;
+	}
+	
 	console.log(password);
 	var loginData = {
 		roll: assData.roll,
@@ -654,18 +677,49 @@ app.post('/form/insert/student/:stdid', (req, res) => {
 	res.send(JSON.stringify({message: "success"}));
 
 } 
-})
+});
+
 //Insert teacher details
 app.post('/form/insert/teacher', (req, res) => {
 	var check = req.check;
+	var assData = req.body;
 	if (check) { res.send('Access Denied'); }
 	else
 {
-	var assData = req.body;
+	var indexSpace = assData.teacherName.indexOf(" ");
+	var password;
+	if(indexSpace > 0){
+		password = assData.teacherName.substring(0, indexSpace).toLowerCase();
+	}
+	else{
+		password = assData.teacherName;
+	}
+
 	insert('teacher', assData, res);
-	res.send(JSON.stringify({message: "success"}));	 
+	var loginData = {
+		name:assData.teacherName,
+		roll:assData.teacherId,
+		semester:0,
+		password:password
+	}
+	insert('logindata', loginData, res);
+	res.send(JSON.stringify({message:'Success'})); 
 }
 })
+
+
+//subject details
+app.get('/details/teacher/sem/subject/:tid/page/:page', (req, res) => {
+	var page = req.params.page;
+	var stm = `select semester, subName from teaches, subject where (subject.subId = teaches.subId) && teaches.teacherId = ${req.params.tid}`;
+	con.query(stm, (err, data) => {
+		if (err) throw err;
+		else {
+			fetchpage(page, data, res);
+		}
+	})
+});
+
 // Fetch Student details semester wise
 app.get('/details/student/semester/:sem/page/:page', (req, res) => {
 	var check = req.check;
