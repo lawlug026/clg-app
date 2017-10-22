@@ -81,6 +81,7 @@ app.post('/login', function (req, res, next) {
 						var roll = result[0].roll;
 						var name = result[0].password;
 						var email = result[0].email;
+						var username = result[0].name;
 						var semester = result[0].semester;
 						var stm = "select bear from bearer";
 						con.query(stm, (err, res1) => {
@@ -97,7 +98,7 @@ app.post('/login', function (req, res, next) {
 								}
 								console.log(Bearer);
 								Bearer = func(Bearer,roll);
-								res.send(JSON.stringify({access_token : Bearer, id : roll, email : email, semester :semester}));
+								res.send(JSON.stringify({access_token : Bearer, name : username, id : roll, email : email, semester :semester}));
 							}
 						});
 				}
@@ -315,8 +316,9 @@ app.get('/assignment/semester/:sem/teacher/:id', ( req, res) => {
 	con.query(queryStmt, (err,data)=>{
 		if(err) throw err;
 		else{
+			res.setHeader('Content-Type', 'application/json');
 			if(!data[0]){
-				res.send('No assignments Available');
+				res.send(JSON.stringify({msg : 'No assignments Available'}));
 			}
 			else{
 				var array = [];
