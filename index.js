@@ -12,7 +12,7 @@ app.use(cors());
 var con = sql.createConnection({
 	host: "localhost",
 	user: "root",
-	password: "notdefined",
+	password: "abhay",
 	database: "cbpgec"
 });
 
@@ -22,6 +22,12 @@ con.connect(function (err) {
 });
 
 
+app.use(jsonFormat);
+
+function jsonFormat(req,res,next){
+	res.setHeader('Content-Type', 'application/json');
+	next();
+}
 
 // Parsers for POST data
 app.use(bodyParser.json());
@@ -45,10 +51,9 @@ app.post('/login', function (req, res, next) {
 	var a4 = JSON.parse(JSON.stringify(req.headers));
 	console.log(a4.authorization);
 	if (a4.authorization == 'Basic cbpgec-a24-u26-n20-p21') {
-		var stmt = `select * from logindata where roll = ${a1} && password = '${a2}'`;
+		var stmt = `select * from logindata where roll = '${a1}' && password = '${a2}'`;
 		console.log(stmt);
 		con.query(stmt, function (err, result) {
-			res.setHeader('Content-Type', 'application/json');
 			if (err) {
 				// console.log(err);
 				res.send(JSON.stringify({ error: 'Invalid Credentials dvfd' }));
@@ -79,9 +84,6 @@ app.post('/login', function (req, res, next) {
 								Bearer = func(Bearer,roll);
 								res.send(JSON.stringify({access_token : Bearer, name : username, id : roll, email : email, semester :semester}));
 							}
-							console.log(Bearer);
-							Bearer = func(Bearer, roll);
-							res.send(JSON.stringify({ access_token: Bearer, id: roll, email: email, semester: semester }));
 						})
 					}
 				}
@@ -128,7 +130,7 @@ var MysqlJson = require('mysql-json');
 var mysqlJson = new MysqlJson({
 	host: 'localhost',
 	user: 'root',
-	password: 'notdefined',
+	password: 'abhay',
 	database: 'cbpgec'
 });
 var temp = 0;
@@ -144,7 +146,7 @@ var MysqlJson = require('mysql-json');
 var mysqlJson = new MysqlJson({
 	host: 'localhost',
 	user: 'root',
-	password: 'notdefined',
+	password: 'abhay',
 	database: 'cbpgec'
 });
 var t
@@ -162,7 +164,6 @@ var bearerCheck = function (req, res, next) {
 				req.check = false;
 				next();
 			}
-
 		}
 	});
 }
@@ -212,7 +213,8 @@ var newAssignment = (assData, id, res) => {
 		subject: assData.subject,
 		department: assData.department,
 		heading: assData.heading,
-		teacherId: assData.teacherId
+		teacherId: assData.teacherId,
+		instructions : assData.instructions 
 	}, function (err, response) {
 		console.log("checkpoint1");
 		if (err) throw err;
@@ -288,7 +290,8 @@ app.get('/assignment/semester/:sem/student/:id', (req, res) => {
 						date: dat.date,
 						subject: dat.subject,
 						dateOfTest: dat.dateOfTest,
-						department: dat.department
+						department: dat.department,
+						instructions : dat.instructions
 					}
 
 					array.push(obj);
@@ -305,14 +308,14 @@ app.get('/assignment/semester/:sem/teacher/:id', (req, res) => {
 	console.log(req.params.id);
 	console.log(req.params.sem);
 	var check = req.check;
-	if (check) { res.send('Access Denied'); }
+	if (check) { res.send(JSON.stringify({msg : 'Access Denied'})); }
 	else
 {
 	var queryStmt = `select * from assignment where teacherId = ${req.params.id}`;
 	con.query(queryStmt, (err,data)=>{
 		if(err) throw err;
 		else{
-			res.setHeader('Content-Type', 'application/json');
+			
 			if(!data[0]){
 				res.send(JSON.stringify({msg : 'No assignments Available'}));
 			}
@@ -330,7 +333,8 @@ app.get('/assignment/semester/:sem/teacher/:id', (req, res) => {
 						date: dat.date,
 						subject: dat.subject,
 						dateOfTest: dat.dateOfTest,
-						department: dat.department
+						department: dat.department,
+						instructions : dat.instructions
 					}
 					array.push(obj);
 				}
@@ -514,7 +518,13 @@ var fetchpage = function (page, data, res) {
 	
 	var arr = [];
 	var starting = (12 * page) - 12;
-	var ending = 12 * page;
+	var ending ;
+	if(data[12*page]){
+		ending = 12*page
+	}
+	else{
+		ending = data.length;
+	}
 	console.log(`starting: ${starting}`);
 	console.log(`ending: ${ending}`);
 	for (var i = starting; i < ending; i++) {
@@ -557,15 +567,15 @@ app.get('/details/teacher/page/:page', (req, res) => {
 
 
 //Insert form details
-app.post('/form/insert/student/:stdid', (req, res) => {
-	var check = req.check;
-	if (check) { res.send('Access Denied'); }
-	else
-{
-	var assData = req.body;
-	insert('form', assData, res);	
-} 
-})
+// app.post('/form/insert/student/:stdid', (req, res) => {
+// 	var check = req.check;
+// 	if (check) { res.send('Access Denied'); }
+// 	else
+// {
+// 	var assData = req.body;
+// 	insert('form', assData, res);	
+// } 
+// })
 //Insert teacher details
 app.post('/form/insert/teacher', (req, res) => {
 	var check = req.check;
@@ -619,6 +629,59 @@ var update = function(tableName, assData, row, id, res){
 		}
 	})
 }
+
+
+//Insert form details
+app.post('/form/insert/student/:stdid', (req, res) => {
+	var check = req.check;
+	if (check) { res.send('Access Denied'); }
+	else
+{
+	var assData = req.body;
+	insert('form', assData, res);
+	var indexSpace = assData.name.indexOf(" ");
+	var password = assData.name.substring(0, indexSpace).toLowerCase();
+	console.log(password);
+	var loginData = {
+		roll: assData.roll,
+		name: assData.name,
+		password: password,
+		email: assData.email,
+		semester: assData.semester
+
+	}
+	insert('logindata', loginData, res);
+	res.send(JSON.stringify({message: "success"}));
+
+} 
+})
+//Insert teacher details
+app.post('/form/insert/teacher', (req, res) => {
+	var check = req.check;
+	if (check) { res.send('Access Denied'); }
+	else
+{
+	var assData = req.body;
+	insert('teacher', assData, res);
+	res.send(JSON.stringify({message: "success"}));	 
+}
+})
+// Fetch Student details semester wise
+app.get('/details/student/semester/:sem/page/:page', (req, res) => {
+	var check = req.check;
+	if (check) { res.send('Access Denied'); }
+	else
+{
+	var page = req.params.page;
+	var ststmt1 = `select * from form where semester = ${req.params.sem};`;
+	con.query(ststmt1, (err, data) => {
+		if (err) throw err;
+		else {
+			fetchpage(page, data, res);
+		}
+	})
+}
+})
 
 
 // // Catch all other routes and return the index file
