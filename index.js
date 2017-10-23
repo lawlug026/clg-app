@@ -21,13 +21,19 @@ con.connect(function (err) {
 	console.log("connected");
 });
 
+var today = new Date();
+console.log(today);
+
+
 
 app.use(jsonFormat);
 
-function jsonFormat(req,res,next){
+function jsonFormat(req, res, next) {
 	res.setHeader('Content-Type', 'application/json');
 	next();
 }
+
+//Global Variables for date
 
 // Parsers for POST data
 app.use(bodyParser.json());
@@ -62,35 +68,35 @@ app.post('/login', function (req, res, next) {
 				console.log("Inside user checkig");
 				if (result.length == 0) { res.send(JSON.stringify({ 'error': 'Invalid Credentials' })); }
 				else {
-						var roll = result[0].roll;
-						var name = result[0].password;
-						var email = result[0].email;
-						var username = result[0].name;
-						var semester = result[0].semester;
-						var stm = "select bear from bearer";
-						con.query(stm, (err, res1) => {
-							if (err) throw err;
-							else {
-								if (res1.length == 0) {
-									Bearer = 1;
-								}
-								else {
-									// var i = res.length();
-									console.log(res1.length);
-									var ln = res1.length - 1;
-									Bearer = parseInt(res1[ln].bear) + 1;
-								}
-								console.log(Bearer);
-								Bearer = func(Bearer,roll);
-								res.send(JSON.stringify({access_token : Bearer, name : username, id : roll, email : email, semester :semester}));
+					var roll = result[0].roll;
+					var name = result[0].password;
+					var email = result[0].email;
+					var username = result[0].name;
+					var semester = result[0].semester;
+					var stm = "select bear from bearer";
+					con.query(stm, (err, res1) => {
+						if (err) throw err;
+						else {
+							if (res1.length == 0) {
+								Bearer = 1;
 							}
-						})
-					}
+							else {
+								// var i = res.length();
+								console.log(res1.length);
+								var ln = res1.length - 1;
+								Bearer = parseInt(res1[ln].bear) + 1;
+							}
+							console.log(Bearer);
+							Bearer = func(Bearer, roll);
+							res.send(JSON.stringify({ access_token: Bearer, name: username, id: roll, email: email, semester: semester }));
+						}
+					})
 				}
-			})		
+			}
+		})
 	}
 	else {
-		res.send("Access Denied");
+		res.send(JSON.stringify({ msg: 'Access Denied' }));
 	}
 });
 
@@ -158,8 +164,10 @@ var bearerCheck = function (req, res, next) {
 	con.query(stmt2, function (err, data) {
 		if (err) throw err;
 		else {
-			if (!data[0]) { req.check = true;
-			next(); }
+			if (!data[0]) {
+			req.check = true;
+				next();
+			}
 			else {
 				req.check = false;
 				next();
@@ -170,10 +178,10 @@ var bearerCheck = function (req, res, next) {
 
 app.use(bearerCheck);
 app.post('/assignment', function (req, res, next) {
-			
-	var assData = req.body;	
+
+	var assData = req.body;
 	var check = req.check;
-	if (check) { res.send('Access Denied'); }
+	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
 	else {
 		console.log("working");
 		var stm = `select assid from assignment`;
@@ -209,7 +217,10 @@ var newAssignment = (assData, id, res) => {
 		department: assData.department,
 		heading: assData.heading,
 		teacherId: assData.teacherId,
-		instructions : assData.instructions 
+		instructions: assData.instructions,
+		status: 'New',
+		colorCode: '#00AA44'
+
 	}, function (err, response) {
 		console.log("checkpoint1");
 		if (err) throw err;
@@ -220,7 +231,7 @@ var newAssignment = (assData, id, res) => {
 	for (let ques = 0; ques < assData.ques.length; ques++) {
 		stmt6 += `, ques${ques + 1} varchar(255)`;
 	}
-	stmt7 += ');'; 
+	stmt7 += ');';
 	con.query(stmt7, (err, result) => {
 		if (err) throw err;
 		else {
@@ -232,7 +243,7 @@ var newAssignment = (assData, id, res) => {
 		stmt6 += `, ques${ques + 1} varchar(255)`;
 	}
 	stmt6 += ');';
-	console.log(stmt6); 
+	console.log(stmt6);
 	con.query(stmt6, (err, result) => {
 		if (err) throw err;
 		else {
@@ -246,7 +257,7 @@ var newAssignment = (assData, id, res) => {
 		if (err) throw err;
 		console.log("Table created");
 		insertQuestions(assData, id);
-		res.send(JSON.stringify({msg : 'Assignment Submission Successful'}));;
+		res.send(JSON.stringify({ msg: 'Assignment Submission Successful' }));;
 	})
 }
 function insertQuestions(assData, id) {
@@ -265,46 +276,67 @@ function insertQuestions(assData, id) {
 		});
 	}
 }
+var statuts = "";
+var color = "";
 
 //assignment fetch for student (using sem)
 app.get('/assignment/semester/:sem/student/:id', (req, res) => {
 	console.log(req.params.id);
 	console.log(req.params.sem);
 	var check = req.check;
-	if (check) { res.send('Access Denied'); }
-	else
-	{var queryStmt = `select * from assignment where semester = ${req.params.sem}`;
-	con.query(queryStmt, (err, data) => {
-		if (err) throw err;
-		else {
-			if (!data[0]) {
-				res.send('No assignments Available');
-			}
+	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
+	else {
+		var queryStmt = `select * from assignment where semester = ${req.params.sem}`;
+		con.query(queryStmt, (err, data) => {
+			if (err) throw err;
 			else {
-				var array = [];
-				console.log(data.length);
-				for (let dat of data) {
-					var obj = {
-						assid: dat.assid,
-						heading: dat.heading,
-						teacherId: dat.teacherId,
-						semester: dat.semester,
-						startTime: dat.startTime,
-						endTime: dat.endTime,
-						date: dat.date,
-						subject: dat.subject,
-						dateOfTest: dat.dateOfTest,
-						department: dat.department,
-						instructions : dat.instructions
-					}
-
-					array.push(obj);
+				if (!data[0]) {
+					res.send(JSON.stringify({ msg: 'No Assignments Available' }));
 				}
-				res.send(array);
+				else {
+					var array = [];
+					var status = '';
+					var color = '';
+					console.log(data.length);
+					for (let dat of data) {
+						var parts = dat.dateOfTest;
+						var a = parts<today;
+						console.log(a);
+						if(a){
+							status='Expired';
+							color='#b6201f';
+						}
+						else
+							{if(parts==today){status='Running';
+							color='#12d265';}
+							else{
+							status='Active';
+							color='#AA0044';}}
+						var obj = {
+							assid: dat.assid,
+							heading: dat.heading,
+							teacherId: dat.teacherId,
+							semester: dat.semester,
+							startTime: dat.startTime,
+							endTime: dat.endTime,
+							date: dat.date,
+							subject: dat.subject,
+							dateOfTest: dat.dateOfTest,
+							department: dat.department,
+							instructions: dat.instructions,
+							status: status,
+							colorCode: color
+						}
+
+						array.push(obj);
+					}
+					res.send(array);
+				}
 			}
-		}
-	})}
+		})
+	}
 })
+
 
 //fetch assignment for teacher
 
@@ -312,70 +344,69 @@ app.get('/assignment/semester/:sem/teacher/:id', (req, res) => {
 	console.log(req.params.id);
 	console.log(req.params.sem);
 	var check = req.check;
-	if (check) { res.send(JSON.stringify({msg : 'Access Denied'})); }
-	else
-{
-	var queryStmt = `select * from assignment where teacherId = ${req.params.id}`;
-	con.query(queryStmt, (err,data)=>{
-		if(err) throw err;
-		else{
-			
-			if(!data[0]){
-				res.send(JSON.stringify({msg : 'No assignments Available'}));
-			}
+	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
+	else {
+		var queryStmt = `select * from assignment where teacherId = ${req.params.id}`;
+		con.query(queryStmt, (err, data) => {
+			if (err) throw err;
 			else {
-				var array = [];
-				console.log(data.length);
-				for (let dat of data) {
-					var obj = {
-						assid: dat.assid,
-						heading: dat.heading,
-						teacherId: dat.teacherId,
-						semester: dat.semester,
-						startTime: dat.startTime,
-						endTime: dat.endTime,
-						date: dat.date,
-						subject: dat.subject,
-						dateOfTest: dat.dateOfTest,
-						department: dat.department,
-						instructions : dat.instructions
-					}
-					array.push(obj);
+
+				if (!data[0]) {
+					res.send(JSON.stringify({ msg: 'No assignments Available' }));
 				}
-				res.send(array);
+				else {
+					var array = [];
+					console.log(data.length);
+					for (let dat of data) {
+						var obj = {
+							assid: dat.assid,
+							heading: dat.heading,
+							teacherId: dat.teacherId,
+							semester: dat.semester,
+							startTime: dat.startTime,
+							endTime: dat.endTime,
+							date: dat.date,
+							subject: dat.subject,
+							dateOfTest: dat.dateOfTest,
+							department: dat.department,
+							instructions: dat.instructions
+						}
+						array.push(obj);
+					}
+					res.send(array);
+				}
 			}
-		}
-	})}
+		})
+	}
 })
 
 
 app.get('/assignment/byId/:id', (req, res) => {
 	console.log(req.params.id);
 	var check = req.check;
-	if (check) { res.send('Access Denied'); }
-	else
-{
-	var tableName = 'ass' + req.params.id;
-	var queryStmt = `select * from ${tableName}`;
-	var array = [];
-	con.query(queryStmt, (err, data) => {
-		if (err) throw err;
-		else {
-			for (let ques of data) {
-				var obj = {
-					ques: ques.ques,
-					answer: ques.answer,
-					op1: ques.op1,
-					op2: ques.op2,
-					op3: ques.op3,
-					op4: ques.op4
+	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
+	else {
+		var tableName = 'ass' + req.params.id;
+		var queryStmt = `select * from ${tableName}`;
+		var array = [];
+		con.query(queryStmt, (err, data) => {
+			if (err) throw err;
+			else {
+				for (let ques of data) {
+					var obj = {
+						ques: ques.ques,
+						answer: ques.answer,
+						op1: ques.op1,
+						op2: ques.op2,
+						op3: ques.op3,
+						op4: ques.op4
+					}
+					array.push(obj);
 				}
-				array.push(obj);
+				res.send(array);
 			}
-			res.send(array);
-		}
-	})
-}
+		})
+	}
 })
 
 
@@ -383,47 +414,47 @@ app.get('/assignment/byId/:id', (req, res) => {
 app.get('/form/fetch/student/:stid', function (req, res) {
 	console.log(req.params.stid);
 	var check = req.check;
-	if (check) { res.send('Access Denied'); }
-	else
-{
-	var formstm1 = `select * from form where roll = ${req.params.stid};`;
-	con.query(formstm1, (err, data) => {
-		if (err) throw err;
-		else {
-			if (!data[0]) {
-				fetchfromlogin(req.params.stid, res);
-			}
-			else {
-				fetchfromform(req.params.stid, res);
-			}
-		}
+	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
+	else {
 
-	})
-}
+		var formstm1 = `select * from form where Enrollment_No = ${req.params.stid};`;
+		con.query(formstm1, (err, data) => {
+			if (err) throw err;
+			else {
+				if (!data[0]) {
+					fetchfromlogin(req.params.stid, res);
+				}
+				else {
+					fetchfromform(req.params.stid, res);
+				}
+			}
+
+		})
+	}
 })
 //function to fetch details from form
 function fetchfromform(id, res) {
-	var formstm3 = `select * from form where roll = ${id};`;
+	var formstm3 = `select * from form where Enrollment_No = ${id};`;
 	con.query(formstm3, (err, data) => {
 		if (err) throw err;
 		else {
 			var obj = {
-				roll: data[0].roll,
-				name: data[0].name,
-				email: data[0].email,
-				semester: data[0].semester,
-				fatherName: data[0].fatherName,
-				motherName: data[0].motherName,
-				studentMobile: data[0].studentMobile,
-				fatherMobile: data[0].fatherMobile,
-				fatherOccupation: data[0].fatherOccupation,
-				motherOccupation: data[0].motherOcupation,
-				fatherOfficeAddress: data[0].fatherOfficeAddress,
-				address1: data[0].address1,
-				address2: data[0].address2,
-				dob: data[0].dob,
-				trainingDet: data[0].tainingDet,
-				acheivementDet: data[0].acheivementDet
+				Enrollment_No: data[0].Enrollment_No,
+				Name: data[0].Name,
+				Email: data[0].Email,
+				Semester: data[0].Semester,
+				Father_Name: data[0].Father_Name,
+				Mother_Name: data[0].Mother_Name,
+				Student_Mobile: data[0].Student_Mobile,
+				Father_Mobile: data[0].Father_Mobile,
+				Father_Occupation: data[0].Father_Occupation,
+				Mother_Occupation: data[0].Mother_Ocupation,
+				Father_Office_Address: data[0].Father_Office_Address,
+				Permanent_Address: data[0].Permanent_Address,
+				Correspondence_Address: data[0].Correspondence_Address,
+				Date_Of_Birth: data[0].Date_Of_Birth,
+				Training_Details: data[0].Training_Details,
+				Achievement_Details: data[0].Achievement_Details
 			}
 			console.log(obj);
 			res.send(obj);
@@ -433,29 +464,29 @@ function fetchfromform(id, res) {
 //function to fetch details from logindata
 function fetchfromlogin(id, res) {
 	console.log(id);
-	var formstm2 = `select * from logindata where roll = ${id};`;
+	var formstm2 = `select * from logindata where Enrollment_No = ${id};`;
 	con.query(formstm2, (err, data) => {
 		if (err) throw err;
 		else {
-			if (!data[0]) { res.send("Student not found"); }
+			if (!data[0]) { res.send(JSON.stringify({'message' : "Student not found"})); }
 			else {
 				var obj = {
-					roll: data[0].roll,
-					name: data[0].name,
-					email: data[0].email,
-					semester: data[0].semester,
-					fatherName: '',
-					motherName: '',
-					studentMobile: '',
-					fatherMobile: '',
-					fatherOccupataion: '',
-					motherOccupation: '',
-					fatherOfficeAddress: '',
-					address1: '',
-					address2: '',
-					dob: '',
-					trainingDet: '',
-					acheivementDet: ''
+					Enrollment_No: data[0].roll,
+					Name: data[0].name,
+					Email: data[0].email,
+					Semester: data[0].semester,
+					Father_Name: '',
+					Mother_Name: '',
+					Student_Mobile: '',
+					Father_Mobile: '',
+					Father_Occupation: '',
+					Mother_Occupation: '',
+					Father_Office_Address: '',
+					Permanent_Address: '',
+					Correspondence_Address: '',
+					Date_Of_Birth: '',
+					Training_Details: '',
+					Achievement_Details: ''
 				}
 				console.log(obj);
 				res.send(obj);
@@ -468,20 +499,19 @@ function fetchfromlogin(id, res) {
 
 app.post('/assignment/submit/student/:stid/assignID/:assid', (req, res) => {
 	var check = req.check;
-	if (check) { res.send('Access Denied'); }
-	else
-{
-	var tableName = `assSol${req.params.assid}`;
-	var assData = req.body;
-	insert(tableName, assData, res);	
-}
+	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
+	else {
+		var tableName = `assSol${req.params.assid}`;
+		var assData = req.body;
+		insert(tableName, assData, res);
+	}
 });
 //function to insert data into DB
-var insert = function(tableName, assData, res){
+var insert = function (tableName, assData, res) {
 	con.query(`INSERT INTO ${tableName} SET ?`, assData, function (err, result) {
 		if (err) throw err;
 		else {
-		
+
 		}
 	});
 }
@@ -489,44 +519,42 @@ var insert = function(tableName, assData, res){
 //fetch soln for teacher
 app.get('/assignment/teacher/:teachid/assid/:assid', (req, res) => {
 	var check = req.check;
-	if (check) { res.send('Access Denied'); }
-	else
-{
-	var solnstmt1 = `select answer from ass${req.params.assid};`;
-	con.query(solnstmt1, (err, result) => {
-		if (err) throw err;
-		else {
-			res.send(result);
-		}
-	});
-}
+	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
+	else {
+		var solnstmt1 = `select answer from ass${req.params.assid};`;
+		con.query(solnstmt1, (err, result) => {
+			if (err) throw err;
+			else {
+				res.send(result);
+			}
+		});
+	}
 });
 
 //Students Solution Page Wise
 app.get('/assignment/studentsoln/assid/:assid/page/:page', (req, res) => {
 	var check = req.check;
-	if (check) { res.send('Access Denied'); }
-	else
-{
-	var page = req.params.page;
-	var stsolstmt1 = `select * from assSol${req.params.assid};`;
-	con.query(stsolstmt1, (err, data) => {
-		if (err) throw err;
-		else {
-			fetchpage(page, data, res);
-		}
-	})
-}
+	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
+	else {
+		var page = req.params.page;
+		var stsolstmt1 = `select * from assSol${req.params.assid};`;
+		con.query(stsolstmt1, (err, data) => {
+			if (err) throw err;
+			else {
+				fetchpage(page, data, res);
+			}
+		})
+	}
 })
 var fetchpage = function (page, data, res) {
-	
+
 	var arr = [];
 	var starting = (12 * page) - 12;
-	var ending ;
-	if(data[12*page]){
-		ending = 12*page
+	var ending;
+	if (data[12 * page]) {
+		ending = 12 * page
 	}
-	else{
+	else {
 		ending = data.length;
 	}
 	console.log(`starting: ${starting}`);
@@ -539,38 +567,36 @@ var fetchpage = function (page, data, res) {
 //fetch students details
 app.get('/details/student/page/:page', (req, res) => {
 	var check = req.check;
-	if (check) { res.send('Access Denied'); }
-	else
-{
-	var page = req.params.page;
-	var ststmt1 = `select * from form;`;
-	con.query(ststmt1, (err, data) => {
-		if (err) throw err;
-		else {
-			fetchpage(page, data, res);
-		}
-	})
-}
+	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
+	else {
+		var page = req.params.page;
+		var ststmt1 = `select * from form;`;
+		con.query(ststmt1, (err, data) => {
+			if (err) throw err;
+			else {
+				fetchpage(page, data, res);
+			}
+		})
+	}
 })
 //fetch teacher details
-app.get('/details/teacher/page/:page', (req, res) => {
+app.get('/details/teacher', (req, res) => {
 	var check = req.check;
-	if (check) { res.send('Access Denied'); }
-	else
-{
-	var page = req.params.page;
-	var ststmt1 = `select * from teacher;`;
-	con.query(ststmt1, (err, data) => {
-		if (err) throw err;
-		else {
-			fetchpage(page, data, res);
-		}
-	})
-}
+	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
+	else {
+		var page = req.params.page;
+		var ststmt1 = `select * from teacher;`;
+		con.query(ststmt1, (err, data) => {
+			if (err) throw err;
+			else {
+				res.send(data);
+			}
+		})
+	}
 })
 
 
-//Insert form details
+// //Insert form details
 // app.post('/form/insert/student/:stdid', (req, res) => {
 // 	var check = req.check;
 // 	if (check) { res.send('Access Denied'); }
@@ -595,38 +621,36 @@ app.get('/details/teacher/page/:page', (req, res) => {
 //Delete form details student
 app.delete('/form/delete/student/:stid', (req, res) => {
 	var check = req.check;
-	if (check) { res.send('Access Denied'); }
-	else
-{
-	var stid = req.params.stid;
-	deleteData('form', 'roll', stid);
-	deleteData('logindata', 'roll', stid);
-	res.send(JSON.stringify({message:'Student Deletion Successful'}));
-}
+	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' }));}
+	else {
+		var stid = req.params.stid;
+		deleteData('form', 'roll', stid);
+		deleteData('logindata', 'roll', stid);
+		res.send(JSON.stringify({ message: 'Student Deletion Successful' }));
+	}
 })
 //delete teacher
 app.delete('/form/delete/teacher/:tid', (req, res) => {
 	var check = req.check;
 	var tid = req.params.tid;
-	if (check) { res.send('Access Denied'); }
-	else
-{
-	
+	if (check) {res.send(JSON.stringify({ msg: 'Access Denied' })); }
+	else {
 
-	deleteData('teacher', 'teacherId', tid);
-	deleteData('teaches', 'teacherId', tid);
-	deleteData('logindata', 'roll', tid);
-	res.send(JSON.stringify({message:'Teacher Deletion Successful'}));
-}
+
+		deleteData('teacher', 'teacherId', tid);
+		deleteData('teaches', 'teacherId', tid);
+		deleteData('logindata', 'roll', tid);
+		res.send(JSON.stringify({ message: 'Teacher Deletion Successful' }));
+	}
 })
 
-var deleteData = function (tableName, row, tid){
+var deleteData = function (tableName, row, tid) {
 	console.log(row);
 	var delstm = `delete from ${tableName} where ${row} = ${tid};`
 	con.query(delstm, (err, data) => {
-		if(err) throw err;
-		else{
-			
+		if (err) throw err;
+		else {
+
 		}
 	})
 }
@@ -634,20 +658,19 @@ var deleteData = function (tableName, row, tid){
 //Update form details
 app.post('/form/update/student/:stdid', (req, res) => {
 	var check = req.check;
-	if (check) { res.send('Access Denied'); }
-	else
-{
-	var assData = req.body;
-	var stid = req.params.stdid;
-	update('form', assData, 'roll', stid, res);	
-} 
+	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
+	else {
+		var assData = req.body;
+		var stid = req.params.stdid;
+		update('form', assData, 'Enrollment_No', stid, res);
+	}
 })
-var update = function(tableName, assData, row, id, res){
+var update = function (tableName, assData, row, id, res) {
 	console.log(row);
 	con.query(`UPDATE ${tableName} SET ? where ${row} = ${id};`, assData, (err, data) => {
 		if (err) throw err;
-		else{
-			res.send("successful Update");
+		else {
+			res.send(JSON.stringify({ msg: 'Update Successful' }));
 		}
 	})
 }
@@ -656,78 +679,83 @@ var update = function(tableName, assData, row, id, res){
 //Insert form details
 app.post('/form/insert/student', (req, res) => {
 	var check = req.check;
-	if (check) { res.send('Access Denied'); }
-	else
-{
-	var assData = req.body;
-	insert('form', assData, res);
-	var indexSpace = assData.name.indexOf(" ");
-	var password;
-	if(indexSpace > 0){
-		password = assData.name.substring(0, indexSpace).toLowerCase();
-	}
-	else{
-		password = assData.name;
-	}
-	
-	console.log(password);
-	var loginData = {
-		roll: assData.roll,
-		name: assData.name,
-		password: password,
-		email: assData.email,
-		semester: assData.semester
+	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
+	else {
+		var assData = req.body;
+		insert('form', assData, res);
+		var indexSpace = assData.Name.indexOf(" ");
+		var password;
+		if (indexSpace > 0) {
+			password = assData.Name.substring(0, indexSpace).toLowerCase();
+		}
+		else {
+			password = assData.name;
+		}
+
+		console.log(password);
+		var loginData = {
+			Enrollment_No: assData.Enrollment_No,
+			Name: assData.Name,
+			Password: password,
+			Email: assData.Email,
+			Semester: assData.Semester
+
+		}
+		insert('logindata', loginData, res);
+		res.send(JSON.stringify({ message: "success" }));
 
 	}
-	insert('logindata', loginData, res);
-	res.send(JSON.stringify({message: "success"}));
-
-} 
 });
 
 //Insert teacher details
 app.post('/form/insert/teacher', (req, res) => {
 	var check = req.check;
 	var assData = req.body;
-	if (check) { res.send('Access Denied'); }
-	else
-{
-	var indexSpace = assData.teacherName.indexOf(" ");
-	var password;
-	if(indexSpace > 0){
-		password = assData.teacherName.substring(0, indexSpace).toLowerCase();
-	}
-	else{
-		password = assData.teacherName;
-	}
+	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
+	else {
+		var indexSpace = assData.teacherName.indexOf(" ");
+		var password;
+		if (indexSpace > 0) {
+			password = assData.teacherName.substring(0, indexSpace).toLowerCase();
+		}
+		else {
+			password = assData.teacherName;
+		}
 
-	insert('teacher', assData, res);
-	var loginData = {
-		name:assData.teacherName,
-		roll:assData.teacherId,
-		semester:0,
-		password:password
+		insert('teacher', assData, res);
+		var loginData = {
+			name: assData.teacherName,
+			roll: assData.teacherId,
+			semester: 0,
+			password: password
+		}
+		insert('logindata', loginData, res);
+		res.send(JSON.stringify({ message: 'Success' }));
 	}
-	insert('logindata', loginData, res);
-	res.send(JSON.stringify({message:'Success'})); 
-}
 })
 
 
 //subject & semester fetch according to teacher detials
-app.get('/details/teacher/sem/subject/:tid/page/:page', (req, res) => {
+app.get('/details/teacher/sem/subject/:tid', (req, res) => {
+	var check = req.check;
+	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
+	else {
 	var page = req.params.page;
 	var stm = `select semester, subName from teaches, subject where (subject.subId = teaches.subId) && teaches.teacherId = ${req.params.tid}`;
 	con.query(stm, (err, data) => {
 		if (err) throw err;
 		else {
-			fetchpage(page, data, res);
+			res.send(data);
 		}
 	})
+	}
 });
 
 //teacher & semester fetch according to subject detials(Complete subject query)
 app.get('/details/subject/page/:page', (req, res) => {
+	var check = req.check;
+	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
+	else {
 	var page = req.params.page;
 	var stm = `select semester, subName, teacherName from subject,teacher where (teaches.teacherId = teacher.teacherId);`;
 	con.query(stm, (err, data) => {
@@ -736,23 +764,23 @@ app.get('/details/subject/page/:page', (req, res) => {
 			fetchpage(page, data, res);
 		}
 	})
+}
 });
 
 // Fetch Student details semester wise
 app.get('/details/student/semester/:sem/page/:page', (req, res) => {
 	var check = req.check;
-	if (check) { res.send('Access Denied'); }
-	else
-{
-	var page = req.params.page;
-	var ststmt1 = `select * from form where semester = ${req.params.sem};`;
-	con.query(ststmt1, (err, data) => {
-		if (err) throw err;
-		else {
-			fetchpage(page, data, res);
-		}
-	})
-}
+	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
+	else {
+		var page = req.params.page;
+		var ststmt1 = `select * from form where Semester = ${req.params.sem};`;
+		con.query(ststmt1, (err, data) => {
+			if (err) throw err;
+			else {
+				fetchpage(page, data, res);
+			}
+		})
+	}
 })
 
 
