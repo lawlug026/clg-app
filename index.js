@@ -12,7 +12,7 @@ app.use(cors());
 var con = sql.createConnection({
 	host: "localhost",
 	user: "root",
-	password: "abhay",
+	password: "notdefined",
 	database: "cbpgec"
 });
 
@@ -130,7 +130,7 @@ var MysqlJson = require('mysql-json');
 var mysqlJson = new MysqlJson({
 	host: 'localhost',
 	user: 'root',
-	password: 'abhay',
+	password: 'notdefined',
 	database: 'cbpgec'
 });
 var temp = 0;
@@ -146,7 +146,7 @@ var MysqlJson = require('mysql-json');
 var mysqlJson = new MysqlJson({
 	host: 'localhost',
 	user: 'root',
-	password: 'abhay',
+	password: 'notdefined',
 	database: 'cbpgec'
 });
 var t
@@ -170,10 +170,8 @@ var bearerCheck = function (req, res, next) {
 
 app.use(bearerCheck);
 app.post('/assignment', function (req, res, next) {
-	assID = 'ass' + temp;	
-	console.log(check);
+			
 	var assData = req.body;	
-	var assData = req.body;
 	var check = req.check;
 	if (check) { res.send('Access Denied'); }
 	else {
@@ -195,10 +193,7 @@ app.post('/assignment', function (req, res, next) {
 				newAssignment(assData, assId, res);
 			}
 		});
-
 	}
-
-
 });
 
 var newAssignment = (assData, id, res) => {
@@ -221,7 +216,17 @@ var newAssignment = (assData, id, res) => {
 		console.log("assignment added");
 		console.log(response);
 	});
-
+	var stmt7 = `create table assRes${id} (studentId char(20)`;
+	for (let ques = 0; ques < assData.ques.length; ques++) {
+		stmt6 += `, ques${ques + 1} varchar(255)`;
+	}
+	stmt7 += ');'; 
+	con.query(stmt7, (err, result) => {
+		if (err) throw err;
+		else {
+			console.log("res table ");
+		}
+	})
 	var stmt6 = `create table assSol${id} (studentId char(20)`;
 	for (let ques = 0; ques < assData.ques.length; ques++) {
 		stmt6 += `, ques${ques + 1} varchar(255)`;
@@ -241,10 +246,9 @@ var newAssignment = (assData, id, res) => {
 		if (err) throw err;
 		console.log("Table created");
 		insertQuestions(assData, id);
-		res.send("success");
+		res.send(JSON.stringify({msg : 'Assignment Submission Successful'}));;
 	})
 }
-
 function insertQuestions(assData, id) {
 	for (i = 0; i < assData.ques.length; i++) {
 		mysqlJson.insert('ass' + id, {
@@ -603,10 +607,12 @@ app.delete('/form/delete/student/:stid', (req, res) => {
 //delete teacher
 app.delete('/form/delete/teacher/:tid', (req, res) => {
 	var check = req.check;
+	var tid = req.params.tid;
 	if (check) { res.send('Access Denied'); }
 	else
 {
-	var tid = req.params.tid;
+	
+
 	deleteData('teacher', 'teacherId', tid);
 	deleteData('teaches', 'teacherId', tid);
 	deleteData('logindata', 'roll', tid);
@@ -614,9 +620,9 @@ app.delete('/form/delete/teacher/:tid', (req, res) => {
 }
 })
 
-var deleteData = function (tableName, row, id, res){
+var deleteData = function (tableName, row, tid){
 	console.log(row);
-	var delstm = `delete from ${tableName} where ${row} = ${id};`
+	var delstm = `delete from ${tableName} where ${row} = ${tid};`
 	con.query(delstm, (err, data) => {
 		if(err) throw err;
 		else{
@@ -708,10 +714,22 @@ app.post('/form/insert/teacher', (req, res) => {
 })
 
 
-//subject details
+//subject & semester fetch according to teacher detials
 app.get('/details/teacher/sem/subject/:tid/page/:page', (req, res) => {
 	var page = req.params.page;
 	var stm = `select semester, subName from teaches, subject where (subject.subId = teaches.subId) && teaches.teacherId = ${req.params.tid}`;
+	con.query(stm, (err, data) => {
+		if (err) throw err;
+		else {
+			fetchpage(page, data, res);
+		}
+	})
+});
+
+//teacher & semester fetch according to subject detials(Complete subject query)
+app.get('/details/subject/page/:page', (req, res) => {
+	var page = req.params.page;
+	var stm = `select semester, subName, teacherName from subject,teacher where (teaches.teacherId = teacher.teacherId);`;
 	con.query(stm, (err, data) => {
 		if (err) throw err;
 		else {
