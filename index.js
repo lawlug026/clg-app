@@ -12,7 +12,7 @@ app.use(cors());
 var con = sql.createConnection({
 	host: "localhost",
 	user: "root",
-	password: "notdefined",
+	password: "abhay",
 	database: "cbpgec"
 });
 
@@ -130,7 +130,7 @@ var MysqlJson = require('mysql-json');
 var mysqlJson = new MysqlJson({
 	host: 'localhost',
 	user: 'root',
-	password: 'notdefined',
+	password: 'abhay',
 	database: 'cbpgec'
 });
 var temp = 0;
@@ -146,7 +146,7 @@ var MysqlJson = require('mysql-json');
 var mysqlJson = new MysqlJson({
 	host: 'localhost',
 	user: 'root',
-	password: 'notdefined',
+	password: 'abhay',
 	database: 'cbpgec'
 });
 var t
