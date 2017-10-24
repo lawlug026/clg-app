@@ -57,7 +57,7 @@ app.post('/login', function (req, res, next) {
 	var a4 = JSON.parse(JSON.stringify(req.headers));
 	console.log(a4.authorization);
 	if (a4.authorization == 'Basic cbpgec-a24-u26-n20-p21') {
-		var stmt = `select * from logindata where roll = '${a1}' && password = '${a2}'`;
+		var stmt = `select * from logindata where Enrollment_No = '${a1}' && Password = '${a2}'`;
 		console.log(stmt);
 		con.query(stmt, function (err, result) {
 			if (err) {
@@ -68,11 +68,11 @@ app.post('/login', function (req, res, next) {
 				console.log("Inside user checkig");
 				if (result.length == 0) { res.send(JSON.stringify({ 'error': 'Invalid Credentials' })); }
 				else {
-					var roll = result[0].roll;
-					var name = result[0].password;
-					var email = result[0].email;
-					var username = result[0].name;
-					var semester = result[0].semester;
+					var roll = result[0].Enrollment_No;
+					var name = result[0].Password;
+					var email = result[0].Email;
+					var username = result[0].Name;
+					var semester = result[0].Semester;
 					var stm = "select bear from bearer";
 					con.query(stm, (err, res1) => {
 						if (err) throw err;
@@ -624,8 +624,8 @@ app.delete('/form/delete/student/:stid', (req, res) => {
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' }));}
 	else {
 		var stid = req.params.stid;
-		deleteData('form', 'roll', stid);
-		deleteData('logindata', 'roll', stid);
+		deleteData('form', 'Enrollment_No', stid);
+		deleteData('logindata', 'Enrollment_No', stid);
 		res.send(JSON.stringify({ message: 'Student Deletion Successful' }));
 	}
 })
@@ -639,7 +639,7 @@ app.delete('/form/delete/teacher/:tid', (req, res) => {
 
 		deleteData('teacher', 'teacherId', tid);
 		deleteData('teaches', 'teacherId', tid);
-		deleteData('logindata', 'roll', tid);
+		deleteData('logindata', 'Enrollment_No', tid);
 		res.send(JSON.stringify({ message: 'Teacher Deletion Successful' }));
 	}
 })
