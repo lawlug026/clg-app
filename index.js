@@ -631,7 +631,7 @@ app.get('/details/student/page/:page', (req, res) => {
 	}
 })
 //fetch teacher details
-app.get('/details/teacher', (req, res) => {
+app.get('/details/teacher/page/:page', (req, res) => {
 	var check = req.check;
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
 	else {
@@ -640,6 +640,7 @@ app.get('/details/teacher', (req, res) => {
 		con.query(ststmt1, (err, data) => {
 			if (err) throw err;
 			else {
+				fetchpage(page, data, res);
 			}
 		})
 	}
