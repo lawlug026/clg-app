@@ -5,6 +5,8 @@ const http = require('http');
 const bodyParser = require('body-parser');
 const sql = require('mysql');
 var cors = require('cors');
+var feedback = require('./routes/feedback');
+
 
 const app = express();
 //Initialising the basic token
@@ -12,7 +14,7 @@ app.use(cors());
 var con = sql.createConnection({
 	host: "localhost",
 	user: "root",
-	password: "abhay",
+	password: "",
 	database: "cbpgec"
 });
 
@@ -136,7 +138,7 @@ var MysqlJson = require('mysql-json');
 var mysqlJson = new MysqlJson({
 	host: 'localhost',
 	user: 'root',
-	password: 'abhay',
+	password: '',
 	database: 'cbpgec'
 });
 var temp = 0;
@@ -152,7 +154,7 @@ var MysqlJson = require('mysql-json');
 var mysqlJson = new MysqlJson({
 	host: 'localhost',
 	user: 'root',
-	password: 'abhay',
+	password: '',
 	database: 'cbpgec'
 });
 var t
@@ -177,6 +179,7 @@ var bearerCheck = function (req, res, next) {
 }
 
 app.use(bearerCheck);
+app.use('/feedback', feedback);
 app.post('/assignment', function (req, res, next) {
 
 	var assData = req.body;

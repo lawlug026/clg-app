@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.6.6deb4
+-- version 4.6.4
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost:3306
--- Generation Time: Oct 23, 2017 at 10:40 PM
--- Server version: 5.7.19-0ubuntu0.17.04.1
--- PHP Version: 7.0.22-0ubuntu0.17.04.1
+-- Host: 127.0.0.1
+-- Generation Time: Oct 25, 2017 at 07:03 PM
+-- Server version: 5.7.14
+-- PHP Version: 7.0.10
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -183,70 +183,70 @@ INSERT INTO `assignment` (`assid`, `heading`, `teacherId`, `semester`, `startTim
 -- --------------------------------------------------------
 
 --
--- Table structure for table `assRes19`
+-- Table structure for table `assres19`
 --
 
-CREATE TABLE `assRes19` (
+CREATE TABLE `assres19` (
   `studentId` char(20) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `assRes20`
+-- Table structure for table `assres20`
 --
 
-CREATE TABLE `assRes20` (
+CREATE TABLE `assres20` (
   `studentId` char(20) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `assRes21`
+-- Table structure for table `assres21`
 --
 
-CREATE TABLE `assRes21` (
+CREATE TABLE `assres21` (
   `studentId` char(20) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `assRes22`
+-- Table structure for table `assres22`
 --
 
-CREATE TABLE `assRes22` (
+CREATE TABLE `assres22` (
   `studentId` char(20) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `assRes23`
+-- Table structure for table `assres23`
 --
 
-CREATE TABLE `assRes23` (
+CREATE TABLE `assres23` (
   `studentId` char(20) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `assRes24`
+-- Table structure for table `assres24`
 --
 
-CREATE TABLE `assRes24` (
+CREATE TABLE `assres24` (
   `studentId` char(20) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `assSol19`
+-- Table structure for table `asssol19`
 --
 
-CREATE TABLE `assSol19` (
+CREATE TABLE `asssol19` (
   `studentId` char(20) DEFAULT NULL,
   `ques1` varchar(255) DEFAULT NULL,
   `ques2` varchar(255) DEFAULT NULL,
@@ -256,10 +256,10 @@ CREATE TABLE `assSol19` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `assSol20`
+-- Table structure for table `asssol20`
 --
 
-CREATE TABLE `assSol20` (
+CREATE TABLE `asssol20` (
   `studentId` char(20) DEFAULT NULL,
   `ques1` varchar(255) DEFAULT NULL,
   `ques2` varchar(255) DEFAULT NULL,
@@ -269,10 +269,10 @@ CREATE TABLE `assSol20` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `assSol21`
+-- Table structure for table `asssol21`
 --
 
-CREATE TABLE `assSol21` (
+CREATE TABLE `asssol21` (
   `studentId` char(20) DEFAULT NULL,
   `ques1` varchar(255) DEFAULT NULL,
   `ques2` varchar(255) DEFAULT NULL,
@@ -282,10 +282,10 @@ CREATE TABLE `assSol21` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `assSol22`
+-- Table structure for table `asssol22`
 --
 
-CREATE TABLE `assSol22` (
+CREATE TABLE `asssol22` (
   `studentId` char(20) DEFAULT NULL,
   `ques1` varchar(255) DEFAULT NULL,
   `ques2` varchar(255) DEFAULT NULL,
@@ -295,10 +295,10 @@ CREATE TABLE `assSol22` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `assSol23`
+-- Table structure for table `asssol23`
 --
 
-CREATE TABLE `assSol23` (
+CREATE TABLE `asssol23` (
   `studentId` char(20) DEFAULT NULL,
   `ques1` varchar(255) DEFAULT NULL,
   `ques2` varchar(255) DEFAULT NULL,
@@ -308,10 +308,10 @@ CREATE TABLE `assSol23` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `assSol24`
+-- Table structure for table `asssol24`
 --
 
-CREATE TABLE `assSol24` (
+CREATE TABLE `asssol24` (
   `studentId` char(20) DEFAULT NULL,
   `ques1` varchar(255) DEFAULT NULL,
   `ques2` varchar(255) DEFAULT NULL,
@@ -341,6 +341,18 @@ INSERT INTO `bearer` (`bear`, `roll`) VALUES
 (5, '02420703114'),
 (6, '1'),
 (7, '1');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `feedback`
+--
+
+CREATE TABLE `feedback` (
+  `heading` varchar(100) DEFAULT NULL,
+  `message` varchar(200) DEFAULT NULL,
+  `id` int(20) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -510,6 +522,12 @@ ALTER TABLE `bearer`
   ADD PRIMARY KEY (`bear`);
 
 --
+-- Indexes for table `feedback`
+--
+ALTER TABLE `feedback`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `form`
 --
 ALTER TABLE `form`
@@ -539,6 +557,15 @@ ALTER TABLE `teacher`
 ALTER TABLE `teaches`
   ADD PRIMARY KEY (`subId`);
 
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `feedback`
+--
+ALTER TABLE `feedback`
+  MODIFY `id` int(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
