@@ -471,10 +471,10 @@ function fetchfromlogin(id, res) {
 			if (!data[0]) { res.send(JSON.stringify({'message' : "Student not found"})); }
 			else {
 				var obj = {
-					Enrollment_No: data[0].roll,
-					Name: data[0].name,
-					Email: data[0].email,
-					Semester: data[0].semester,
+					Enrollment_No: data[0].Enrollment_No,
+					Name: data[0].Name,
+					Email: data[0].Email,
+					Semester: data[0].Semester,
 					Father_Name: '',
 					Mother_Name: '',
 					Student_Mobile: '',
@@ -724,10 +724,10 @@ app.post('/form/insert/teacher', (req, res) => {
 
 		insert('teacher', assData, res);
 		var loginData = {
-			name: assData.teacherName,
-			roll: assData.teacherId,
-			semester: 0,
-			password: password
+			Name: assData.teacherName,
+			Enrollment_No: assData.teacherId,
+			Semester: 0,
+			Password: password
 		}
 		insert('logindata', loginData, res);
 		res.send(JSON.stringify({ message: 'Success' }));
