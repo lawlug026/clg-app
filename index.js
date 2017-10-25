@@ -12,7 +12,7 @@ app.use(cors());
 var con = sql.createConnection({
 	host: "localhost",
 	user: "root",
-	password: "abhay",
+	password: "notdefined",
 	database: "cbpgec"
 });
 
@@ -57,7 +57,7 @@ app.post('/login', function (req, res, next) {
 	var a4 = JSON.parse(JSON.stringify(req.headers));
 	console.log(a4.authorization);
 	if (a4.authorization == 'Basic cbpgec-a24-u26-n20-p21') {
-		var stmt = `select * from logindata where Enrollment_No = '${a1}' && Password = '${a2}'`;
+		var stmt = `select * from logindata where roll = '${a1}' && password = '${a2}'`;
 		console.log(stmt);
 		con.query(stmt, function (err, result) {
 			if (err) {
@@ -68,11 +68,11 @@ app.post('/login', function (req, res, next) {
 				console.log("Inside user checkig");
 				if (result.length == 0) { res.send(JSON.stringify({ 'error': 'Invalid Credentials' })); }
 				else {
-					var roll = result[0].Enrollment_No;
-					var name = result[0].Password;
-					var email = result[0].Email;
-					var username = result[0].Name;
-					var semester = result[0].Semester;
+					var roll = result[0].roll;
+					var name = result[0].password;
+					var email = result[0].email;
+					var username = result[0].name;
+					var semester = result[0].semester;
 					var stm = "select bear from bearer";
 					con.query(stm, (err, res1) => {
 						if (err) throw err;
@@ -136,7 +136,7 @@ var MysqlJson = require('mysql-json');
 var mysqlJson = new MysqlJson({
 	host: 'localhost',
 	user: 'root',
-	password: 'abhay',
+	password: 'notdefined',
 	database: 'cbpgec'
 });
 var temp = 0;
@@ -152,7 +152,7 @@ var MysqlJson = require('mysql-json');
 var mysqlJson = new MysqlJson({
 	host: 'localhost',
 	user: 'root',
-	password: 'abhay',
+	password: 'notdefined',
 	database: 'cbpgec'
 });
 var t
@@ -229,9 +229,10 @@ var newAssignment = (assData, id, res) => {
 	});
 	var stmt7 = `create table assRes${id} (studentId char(20)`;
 	for (let ques = 0; ques < assData.ques.length; ques++) {
-		stmt6 += `, ques${ques + 1} varchar(255)`;
+		stmt7 += `, ques${ques + 1} varchar(255)`;
 	}
 	stmt7 += ');';
+	console.log(stmt7);
 	con.query(stmt7, (err, result) => {
 		if (err) throw err;
 		else {
@@ -495,7 +496,7 @@ function fetchfromlogin(id, res) {
 	})
 }
 
-//Insert solution into database
+//Insert Student solution into database
 
 app.post('/assignment/submit/student/:stid/assignID/:assid', (req, res) => {
 	var check = req.check;
@@ -503,9 +504,50 @@ app.post('/assignment/submit/student/:stid/assignID/:assid', (req, res) => {
 	else {
 		var tableName = `assSol${req.params.assid}`;
 		var assData = req.body;
+		var resData = [`studentID:${req.params.stid}`];
 		insert(tableName, assData, res);
+		var solnstmt1 = `select answer from ass${req.params.assid};`;
+		con.query(solnstmt1, (err, result) => {
+			if (err) throw err;
+			else {
+				console.log(result)
+				console.log(assData)
+				var soln=[];
+				var rest = [];
+				for (data in assData)
+					soln.push(assData[data]); 
+				for(i = 0; i<result.length; i++){
+					rest.push(result[i].answer)
+				}				
+				console.log(soln);
+				rest.reverse();
+				console.log(rest);
+				var tableName = `assRes${req.params.assid}`;
+				var obj = {
+					studentID:req.params.stid}
+				var i=0;
+				for(i=0; i<result.length; i++)
+				{				
+					console.log(i);
+					console.log(rest[i]);
+					console.log(soln[i+1])
+					if(rest[i]==soln[i+1]){	
+					obj['ques'+(i+1)] =1;}
+					else{
+						obj['ques'+(i+1)] =0;	
+					}
+				}
+				if(i==3){
+				console.log(obj);
+				insert(tableName, obj, res);
+				res.send(JSON.stringify({message:"HI"}));
+				}
+			}
+		});
 	}
 });
+
+
 //function to insert data into DB
 var insert = function (tableName, assData, res) {
 	con.query(`INSERT INTO ${tableName} SET ?`, assData, function (err, result) {
@@ -521,15 +563,24 @@ app.get('/assignment/teacher/:teachid/assid/:assid', (req, res) => {
 	var check = req.check;
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
 	else {
-		var solnstmt1 = `select answer from ass${req.params.assid};`;
-		con.query(solnstmt1, (err, result) => {
-			if (err) throw err;
-			else {
-				res.send(result);
-			}
-		});
+		var solnData = solnFetch(req.params.assid);
+		
+		
+	
 	}
 });
+
+var solnFetch = function(assid)
+{
+	var solnstmt1 = `select answer from ass${assid};`;
+con.query(solnstmt1, (err, result) => {
+	if (err) throw err;
+	else {
+		res.send(result);
+		
+	}
+});
+}
 
 //Students Solution Page Wise
 app.get('/assignment/studentsoln/assid/:assid/page/:page', (req, res) => {
@@ -589,7 +640,6 @@ app.get('/details/teacher', (req, res) => {
 		con.query(ststmt1, (err, data) => {
 			if (err) throw err;
 			else {
-				res.send(data);
 			}
 		})
 	}
@@ -624,8 +674,8 @@ app.delete('/form/delete/student/:stid', (req, res) => {
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' }));}
 	else {
 		var stid = req.params.stid;
-		deleteData('form', 'Enrollment_No', stid);
-		deleteData('logindata', 'Enrollment_No', stid);
+		deleteData('form', 'roll', stid);
+		deleteData('logindata', 'roll', stid);
 		res.send(JSON.stringify({ message: 'Student Deletion Successful' }));
 	}
 })
@@ -639,7 +689,7 @@ app.delete('/form/delete/teacher/:tid', (req, res) => {
 
 		deleteData('teacher', 'teacherId', tid);
 		deleteData('teaches', 'teacherId', tid);
-		deleteData('logindata', 'Enrollment_No', tid);
+		deleteData('logindata', 'roll', tid);
 		res.send(JSON.stringify({ message: 'Teacher Deletion Successful' }));
 	}
 })
@@ -782,6 +832,30 @@ app.get('/details/student/semester/:sem/page/:page', (req, res) => {
 		})
 	}
 })
+
+
+// Update the form table
+
+app.post('/update/form', (req, res) => {
+	var check = req.check;
+	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
+	else {
+		updateColumn('form', req.body.column, 'VARCHAR(255)', res);
+		
+	}
+})
+
+var updateColumn = function(table, column, datatype, res){
+	var stmt = `ALTER TABLE ${table} ADD ${column} ${datatype};`;
+	con.query(stmt, (err, data) => {
+		if (err) {console.log(err);
+		res.send(JSON.stringify({"message":"Column Not Added Successfully"}));}
+		else{
+			res.send(JSON.stringify({"message":"Column Added Successfully"}));
+			
+		}
+	})
+}
 
 
 // // Catch all other routes and return the index file
