@@ -229,9 +229,10 @@ var newAssignment = (assData, id, res) => {
 	});
 	var stmt7 = `create table assRes${id} (studentId char(20)`;
 	for (let ques = 0; ques < assData.ques.length; ques++) {
-		stmt6 += `, ques${ques + 1} varchar(255)`;
+		stmt7 += `, ques${ques + 1} varchar(255)`;
 	}
 	stmt7 += ');';
+	console.log(stmt7);
 	con.query(stmt7, (err, result) => {
 		if (err) throw err;
 		else {
@@ -495,7 +496,7 @@ function fetchfromlogin(id, res) {
 	})
 }
 
-//Insert solution into database
+//Insert Student solution into database
 
 app.post('/assignment/submit/student/:stid/assignID/:assid', (req, res) => {
 	var check = req.check;
@@ -503,9 +504,50 @@ app.post('/assignment/submit/student/:stid/assignID/:assid', (req, res) => {
 	else {
 		var tableName = `assSol${req.params.assid}`;
 		var assData = req.body;
+		var resData = [`studentID:${req.params.stid}`];
 		insert(tableName, assData, res);
+		var solnstmt1 = `select answer from ass${req.params.assid};`;
+		con.query(solnstmt1, (err, result) => {
+			if (err) throw err;
+			else {
+				console.log(result)
+				console.log(assData)
+				var soln=[];
+				var rest = [];
+				for (data in assData)
+					soln.push(assData[data]); 
+				for(i = 0; i<result.length; i++){
+					rest.push(result[i].answer)
+				}				
+				console.log(soln);
+				rest.reverse();
+				console.log(rest);
+				var tableName = `assRes${req.params.assid}`;
+				var obj = {
+					studentID:req.params.stid}
+				var i=0;
+				for(i=0; i<result.length; i++)
+				{				
+					console.log(i);
+					console.log(rest[i]);
+					console.log(soln[i+1])
+					if(rest[i]==soln[i+1]){	
+					obj['ques'+(i+1)] =1;}
+					else{
+						obj['ques'+(i+1)] =0;	
+					}
+				}
+				if(i==3){
+				console.log(obj);
+				insert(tableName, obj, res);
+				res.send(JSON.stringify({message:"HI"}));
+				}
+			}
+		});
 	}
 });
+
+
 //function to insert data into DB
 var insert = function (tableName, assData, res) {
 	con.query(`INSERT INTO ${tableName} SET ?`, assData, function (err, result) {
@@ -521,15 +563,24 @@ app.get('/assignment/teacher/:teachid/assid/:assid', (req, res) => {
 	var check = req.check;
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
 	else {
-		var solnstmt1 = `select answer from ass${req.params.assid};`;
-		con.query(solnstmt1, (err, result) => {
-			if (err) throw err;
-			else {
-				res.send(result);
-			}
-		});
+		var solnData = solnFetch(req.params.assid);
+		
+		
+	
 	}
 });
+
+var solnFetch = function(assid)
+{
+	var solnstmt1 = `select answer from ass${assid};`;
+con.query(solnstmt1, (err, result) => {
+	if (err) throw err;
+	else {
+		res.send(result);
+		
+	}
+});
+}
 
 //Students Solution Page Wise
 app.get('/assignment/studentsoln/assid/:assid/page/:page', (req, res) => {
