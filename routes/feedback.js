@@ -1,27 +1,17 @@
 //Importing the dependencies
 const express = require('express');
-const path = require('path');
-const http = require('http');
-// const bodyParser = require('body-parser');
 const sql = require('mysql');
-
-
 var router = express.Router();
-
-
 var con = sql.createConnection({
 	host: "localhost",
 	user: "root",
 	password: "",
 	database: "cbpgec"
 });
-
 con.connect(function (err) {
 	if (err) throw err;
 	console.log("connected");
 });
-
-
 //Global Functions
 
 //function to insert data into DB
@@ -31,17 +21,12 @@ var insert = function (tableName, assData, res) {
 			console.log(err);
 			res.send(JSON.stringify({ msg: 'Insertion Unsuccessful' }));
 			 }
-		else {
-			res.send(JSON.stringify({ msg: 'Insertion Successful' }));
-
-		}
+		else res.send(JSON.stringify({ msg: 'Insertion Successful' }));
 	});
 }
 
 //Fetch Details page wise
-
 var fetchpage = function (page, data, res) {
-
 	var arr = [];
 	var starting = (12 * page) - 12;
 	var ending;
@@ -73,8 +58,9 @@ var deleteData = function (tableName, row, tid, res) {
 
 	})
 }
-
-
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Actual Routing Start//
+//Feedback Submission
 router.post('/submit', (req, res) => {
 var check = req.check;
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
@@ -82,12 +68,10 @@ var check = req.check;
 		var id = req.params.id;
 		var feedData = req.body;
 		insert('feedback', feedData, res)
-
-
 	}
 })
 
-
+//Details of the feedback ID wise
 router.get('/detail/id/:id/page/:page', (req, res) => {
 	var check = req.check;
 	var page = req.params.page
@@ -99,15 +83,14 @@ router.get('/detail/id/:id/page/:page', (req, res) => {
 			console.log(err);
 			res.send(JSON.stringify({ msg: 'Fetch Unsuccessful' }));
 			 }
-		else {
-			fetchpage(page, result, res);
+		else fetchpage(page, result, res);
 
-		}
 		})
 	}
 
 })
 
+//Details of entire feedback list
 router.get('/detail/page/:page', (req, res) => {
 	var check = req.check;
 	var page = req.params.page
@@ -119,26 +102,19 @@ router.get('/detail/page/:page', (req, res) => {
 			console.log(err);
 			res.send(JSON.stringify({ msg: 'Fetch Unsuccessful' }));
 			 }
-		else {
-			fetchpage(page, result, res);
-
-		}
+		else fetchpage(page, result, res);
 		})
 	}
 
 })
-
-
+//Delete the Feedback 
 router.delete('/delete/id/:id', (req, res) => {
 	var check = req.check;
 	var id = req.params.id
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
 	else {
 		deleteData('feedback', 'id', id, res);
-
 		}		
-	
-
 })
 
 
