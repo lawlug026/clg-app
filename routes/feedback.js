@@ -5,7 +5,7 @@ var router = express.Router();
 var con = sql.createConnection({
 	host: "localhost",
 	user: "root",
-	password: "",
+	password: "notdefined",
 	database: "cbpgec"
 });
 con.connect(function (err) {

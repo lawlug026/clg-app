@@ -4,7 +4,7 @@ var router = express.Router();
 var con = sql.createConnection({
 	host: "localhost",
 	user: "root",
-	password: "",
+	password: "notdefined",
 	database: "cbpgec"
 });
 con.connect(function (err) {
@@ -18,13 +18,17 @@ var MysqlJson = require('mysql-json');
 var mysqlJson = new MysqlJson({
 	host: 'localhost',
 	user: 'root',
-	password: '',
+	password: 'notdefined',
 	database: 'cbpgec'
 });
 
+var today = new Date();
+console.log(today);
 
 
 
+
+//Assignment Create
 router.post('/', function (req, res, next) {
 	var teacherName;
 	var assData = req.body;
@@ -163,13 +167,13 @@ var statuts = "";
 var color = "";
 
 //assignment fetch for student (using sem)
-router.get('/semester/:sem/student/:id', (req, res) => {
+router.get('/semester/:sem/department/:dept', (req, res) => {
 	console.log(req.params.id);
 	console.log(req.params.sem);
 	var check = req.check;
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
 	else {
-		var queryStmt = `select * from assignment where semester = ${req.params.sem}`;
+		var queryStmt = `select * from assignment where semester = ${req.params.sem} && department = '${req.params.dept}'`;
 		con.query(queryStmt, (err, data) => {
 			if (err) {
 			console.log(err);
@@ -216,6 +220,7 @@ router.get('/semester/:sem/student/:id', (req, res) => {
 						}
 
 						array.push(obj);
+						changeStatus(obj);
 					}
 					res.send(array);
 				}
@@ -223,6 +228,85 @@ router.get('/semester/:sem/student/:id', (req, res) => {
 		})
 	}
 })
+
+//assignment fetch for student (using sem & subject)
+router.get('/semester/:sem/department/:dept/subject/:sub', (req, res) => {
+	console.log(req.params.id);
+	console.log(req.params.sem);
+	var check = req.check;
+	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
+	else {
+		var queryStmt = `select * from assignment where semester = ${req.params.sem} && department = ${req.params.dept} && subject = ${req.params.dept}`;
+		con.query(queryStmt, (err, data) => {
+			if (err) {
+			console.log(err);
+			res.send(JSON.stringify({ msg: 'Insertion Unsuccessful' }));
+			 }
+			else {
+				if (!data[0]) {
+					res.send(JSON.stringify({ msg: 'No Assignments Available' }));
+				}
+				else {
+					var array = [];
+					var status = '';
+					var color = '';
+					console.log(data.length);
+					for (let dat of data) {
+						var parts = dat.dateOfTest;
+						var a = parts<today;
+						console.log(a);
+						if(a){
+							status='Expired';
+							color='#b6201f';
+						}
+						else
+							{if(parts==today){status='Running';
+							color='#12d265';}
+							else{
+							status='Active';
+							color='#AA0044';}}
+						var obj = {
+							assid: dat.assid,
+							heading: dat.heading,
+							teacherId: dat.teacherId,
+							semester: dat.semester,
+							startTime: dat.startTime,
+							endTime: dat.endTime,
+							date: dat.date,
+							teacherName: dat.teacherName,
+							subject: dat.subject,
+							dateOfTest: dat.dateOfTest,
+							department: dat.department,
+							instructions: dat.instructions,
+							status: status,
+							colorCode: color
+						}
+
+
+						array.push(obj);
+						
+					}
+					res.send(array);
+				}
+			}
+		})
+	}
+})
+
+//functio to change status
+var changeStatus = function(obj){
+	var stm = `UPDATE assignment SET status = '${obj.status}', colorCode = '${obj.colorCode}' where assid = ${obj.assid}`;
+	con.query(stm, (err, result)=>{
+		if (err) {
+			console.log(err);
+			
+			 }
+		else{
+			console.log('Update Successful');
+		}
+
+	})
+}
 
 
 //fetch assignment for teacher
@@ -303,7 +387,7 @@ router.get('/teacher/wans/id/:id', (req, res) => {
 	}
 })
 
-// Teacher fetch soln key with ques
+// student fetch ques during test
 router.get('/student/ques/id/:id', (req, res) => {
 	console.log(req.params.id);
 	var check = req.check;
@@ -333,6 +417,58 @@ router.get('/student/ques/id/:id', (req, res) => {
 		})
 	}
 })
+
+var expired = false;
+//fetching of ans when assignment is expired
+router.get('/student/wans/id/:id', (req, res) => {
+	console.log(req.params.id);
+	var id = req.params.id;
+	var check = req.check;
+	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
+	else {
+		var stm = `select status from assignment where assid = ${id};`;
+	con.query(stm, (err, result)=>{
+		if (err) {
+			console.log(err);
+			res.send(JSON.stringify({ msg: 'Insertion Unsuccessful' }));
+			 }
+			 else{
+			 	if (result[0].status == 'Expired'){
+			console.log('w1');
+			var tableName = 'ass' + req.params.id;
+
+		var queryStmt = `select * from ${tableName}`;
+		var array = [];
+		con.query(queryStmt, (err, data) => {
+			if (err) {
+			console.log(err);
+			res.send(JSON.stringify({ msg: 'Insertion Unsuccessful' }));
+			 }
+			else {
+				console.log("inside if");
+				for (let ques of data) {
+					var obj = {
+						ques: ques.ques,
+						answer: ques.answer,
+						op1: ques.op1,
+						op2: ques.op2,
+						op3: ques.op3,
+						op4: ques.op4
+					}
+					array.push(obj);
+				}
+				res.send(array);
+			}
+		})
+	}}
+		
+})
+}
+});
+
+
+
+//student submission
 
 router.post('/submit/student/:stid/assignID/:assid', (req, res) => {
 	var check = req.check;
@@ -435,9 +571,30 @@ router.get('/studentsoln/assid/:assid/page/:page', (req, res) => {
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
 	else {
 		var page = req.params.page;
-		var stsolstmt1 = `select * from asssol${req.params.assid} JOIN assres${req.params.assid};`;
+		var stsolstmt1 = `select * from asssol${req.params.assid};`;
 		console.log(stsolstmt1);
 		con.query(stsolstmt1, (err, data) => {
+			if (err) {
+			console.log(err);
+			res.send(JSON.stringify({ msg: 'Insertion Unsuccessful' }));
+			 }
+			else {
+				fetchpage(page, data, res);
+			}
+		})
+	}
+})
+
+//Students Marks Page Wise
+
+router.get('/studentres/assid/:assid/page/:page', (req, res) => {
+	var check = req.check;
+	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
+	else {
+		var page = req.params.page;
+		var stresstmt1 = `select * from assres${req.params.assid};`;
+		console.log(stsolstmt1);
+		con.query(stresstmt1, (err, data) => {
 			if (err) {
 			console.log(err);
 			res.send(JSON.stringify({ msg: 'Insertion Unsuccessful' }));
