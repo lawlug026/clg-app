@@ -78,7 +78,7 @@ app.post('/login', function (req, res, next) {
 					var semester = result[0].Semester;
 					var stm = "select bear from bearer";
 					con.query(stm, (err, res1) => {
-						if (err) console.log(err);;
+						if (err) console.log(err);
 						else {
 							if (res1.length == 0) {
 								Bearer = 1;
@@ -107,7 +107,7 @@ var func = (bearer, roll) => {
 	console.log("st" + bearer);
 	var stmt1 = "INSERT into bearer VALUES(" + bearer + ", '" + roll + "');";
 	con.query(stmt1, function (err, result) {
-		if (err) console.log(err);;
+		if (err) console.log(err);
 		else console.log("Insertion successful");
 	});
 	console.log("Inside func");
@@ -119,7 +119,7 @@ app.post('/form', function (req, res) {
 	var bear = req.query.bearer;
 	var stmt2 = "select * from logindata where token = '" + bear + "';";
 	con.query(stmt2, function (err, data) {
-		if (err) console.log(err);;
+		if (err) console.log(err);
 		else {
 			if (!data[0]) { res.send("User not available"); }
 			else {
@@ -165,7 +165,7 @@ var bearerCheck = function (req, res, next) {
 	var bear = bear.substring(7, bear.length);
 	var stmt2 = `select * from bearer where bear = ${bear}`;
 	con.query(stmt2, function (err, data) {
-		if (err) console.log(err);;
+		if (err) console.log(err);
 		else {
 			if (!data[0]) {
 			req.check = true;
@@ -193,7 +193,7 @@ app.get('/form/fetch/student/:stid', function (req, res) {
 
 		var formstm1 = `select * from form where Enrollment_No = ${req.params.stid};`;
 		con.query(formstm1, (err, data) => {
-			if (err) console.log(err);;
+			if (err) console.log(err);
 			else {
 				if (!data[0]) {
 					fetchfromlogin(req.params.stid, res);
@@ -210,7 +210,7 @@ app.get('/form/fetch/student/:stid', function (req, res) {
 function fetchfromform(id, res) {
 	var formstm3 = `select * from form where Enrollment_No = ${id};`;
 	con.query(formstm3, (err, data) => {
-		if (err) console.log(err);;
+		if (err) console.log(err);
 		else {
 			var obj = {
 				Enrollment_No: data[0].Enrollment_No,
@@ -240,7 +240,7 @@ function fetchfromlogin(id, res) {
 	console.log(id);
 	var formstm2 = `select * from logindata where Enrollment_No = ${id};`;
 	con.query(formstm2, (err, data) => {
-		if (err) console.log(err);;
+		if (err) console.log(err);
 		else {
 			if (!data[0]) { res.send(JSON.stringify({'message' : "Student not found"})); }
 			else {
@@ -273,7 +273,7 @@ function fetchfromlogin(id, res) {
 
 var insert = function (tableName, assData, res) {
 	con.query(`INSERT INTO ${tableName} SET ?`, assData, function (err, result) {
-		if (err) console.log(err);;
+		if (err) console.log(err);
 		else {
 
 		}
@@ -599,11 +599,11 @@ var addColumn = function(table, column, datatype, res){
 	})
 }
 
-app.delete('/update/form/delete', (req, res) => {
+app.delete('/update/form/delete/:column', (req, res) => {
 	var check = req.check;
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
 	else {
-		deleteColumn('form', req.body.column, res);
+		deleteColumn('form', req.params.column, res);
 		
 	}
 })
@@ -619,6 +619,27 @@ var deleteColumn = function(table, column, res){
 		}
 	})
 }
+
+
+app.get('/details/semester/:sem', (req, res) => {
+	var check = req.check;
+	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
+	else {
+	var sem = req.params.sem;
+	var stmt = `SELECT subName, subId FROM subject where semester = ${req.params.sem} && subId NOT IN (
+   SELECT DISTINCT subId FROM teaches);`;
+	con.query(stmt, (err, datas)=>{
+		if (err){ console.log(err);
+		}
+		else{
+			res.send(datas);
+			
+
+		}
+	})
+	
+}
+});
 
 
 // // Catch all other routes and return the index file
