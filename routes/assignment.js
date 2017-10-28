@@ -173,7 +173,7 @@ router.get('/semester/:sem/department/:dept', (req, res) => {
 	var check = req.check;
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
 	else {
-		var queryStmt = `select * from assignment where semester = ${req.params.sem} && department = '${req.params.dept}'`;
+		var queryStmt = `select * from assignment where semester = ${req.params.sem} && department = '${req.params.dept}' ORDER BY dateOfTest DESC`;
 		con.query(queryStmt, (err, data) => {
 			if (err) {
 			console.log(err);
@@ -197,10 +197,10 @@ router.get('/semester/:sem/department/:dept', (req, res) => {
 							color='#b6201f';
 						}
 						else
-							{if(parts==today){status='Running';
+							{if(parts==today){status='In Progress';
 							color='#12d265';}
 							else{
-							status='Active';
+							status='New';
 							color='#AA0044';}}
 						var obj = {
 							assid: dat.assid,
@@ -344,7 +344,9 @@ router.get('/semester/:sem/teacher/:id', (req, res) => {
 							subject: dat.subject,
 							dateOfTest: dat.dateOfTest,
 							department: dat.department,
-							instructions: dat.instructions
+							instructions: dat.instructions,
+							status: dat.status,
+							colorCode: dat.colorCode
 						}
 						array.push(obj);
 					}

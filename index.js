@@ -91,9 +91,21 @@ app.post('/login', function (req, res, next) {
 							}
 							console.log(Bearer);
 							Bearer = func(Bearer, roll);
-							res.send(JSON.stringify({ access_token: Bearer, name: username, id: roll, email: email, semester: semester }));
-						}
-					})
+							if(roll.length<=4)
+							res.send(JSON.stringify({ access_token: Bearer, department:null, name: username, id: roll, email: email, semester: semester}));
+							else{
+								var ver = roll.substring(7,11);
+								console.log(ver);
+								if(ver==3114)
+							res.send(JSON.stringify({ access_token: Bearer, department:'IT', name: username, id: roll, email: email, semester: semester}));
+								else {
+									res.send(JSON.stringify({ access_token: Bearer, department:'civil', name: username, id: roll, email: email, semester: semester}));
+								}
+
+							}						
+								}
+						})
+					
 				}
 			}
 		})
@@ -640,6 +652,25 @@ app.get('/details/semester/:sem', (req, res) => {
 	
 }
 });
+app.get('/list/semester/teacher/:tid', (req, res) => {
+	var check = req.check;
+	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
+	else {
+	var tid = req.params.tid;
+	var stmt = `SELECT semester from subject, teaches where teaches.subId = subject.subId && teacherId = ${tid};`;
+	con.query(stmt, (err, datas)=>{
+		if (err){ console.log(err);
+		}
+		else{
+			res.send(datas);
+			
+
+		}
+	})
+	
+}
+
+})
 
 
 // // Catch all other routes and return the index file
