@@ -24,7 +24,13 @@ con.connect(function (err) {
 	console.log("connected");
 });
 
-var today = new Date();
+var dateUTC = new Date();
+var dateUTC = dateUTC.getTime() 
+var today = new Date(dateUTC);
+
+//date shifting for IST timezone (+5 hours and 30 minutes)
+today.setHours(today.getHours() + 5); 
+today.setMinutes(today.getMinutes() + 30);
 console.log(today);
 
 
@@ -94,9 +100,9 @@ app.post('/login', function (req, res, next) {
 							if(roll.length<=4)
 							res.send(JSON.stringify({ access_token: Bearer, department:null, name: username, id: roll, email: email, semester: semester}));
 							else{
-								var ver = roll.substring(7,11);
+								var ver = roll.substring(7,9);
 								console.log(ver);
-								if(ver==3114)
+								if(ver==31)
 							res.send(JSON.stringify({ access_token: Bearer, department:'IT', name: username, id: roll, email: email, semester: semester}));
 								else {
 									res.send(JSON.stringify({ access_token: Bearer, department:'civil', name: username, id: roll, email: email, semester: semester}));
@@ -615,7 +621,8 @@ app.delete('/update/form/delete/:column', (req, res) => {
 	var check = req.check;
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
 	else {
-		deleteColumn('form', req.params.column, res);
+		var column = req.params.column;
+		deleteColumn('form', column, res);
 		
 	}
 })

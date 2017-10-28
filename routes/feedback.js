@@ -12,6 +12,10 @@ con.connect(function (err) {
 	if (err) throw err;
 	console.log("connected");
 });
+
+//Global Variables
+
+var today = new Date();
 //Global Functions
 
 //function to insert data into DB
@@ -67,6 +71,7 @@ var check = req.check;
 	else {
 		var id = req.params.id;
 		var feedData = req.body;
+		feedData['date'] = today;
 		insert('feedback', feedData, res)
 	}
 })

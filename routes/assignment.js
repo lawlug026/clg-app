@@ -22,9 +22,12 @@ var mysqlJson = new MysqlJson({
 	database: 'cbpgec'
 });
 
-var today = new Date();
+var dateUTC = new Date();
+var dateUTC = dateUTC.getTime() 
+var today = new Date(dateUTC);
+today.setHours(today.getHours() + 5); 
+today.setMinutes(today.getMinutes() + 30);
 console.log(today);
-
 
 
 
@@ -167,9 +170,10 @@ var statuts = "";
 var color = "";
 
 //assignment fetch for student (using sem)
-router.get('/semester/:sem/department/:dept', (req, res) => {
+router.get('/semester/:sem/department/:dept/page/:page', (req, res) => {
 	console.log(req.params.id);
 	console.log(req.params.sem);
+	var page = req.params.page;
 	var check = req.check;
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
 	else {
@@ -190,18 +194,58 @@ router.get('/semester/:sem/department/:dept', (req, res) => {
 					console.log(data.length);
 					for (let dat of data) {
 						var parts = dat.dateOfTest;
-						var a = parts<today;
-						console.log(a);
-						if(a){
+						parts.setHours(parts.getHours() + 5); 
+						parts.setMinutes(parts.getMinutes() + 30);
+						var yp = parts.getYear();
+						var mp = parts.getMonth();
+						var dp = parts.getDate();
+						var yt = today.getYear();
+						var mt = today.getMonth();
+						var dt = today.getDate();
+						console.log(yp,mp,dp);
+						console.log(yt,mt,dt);
+						
+						if(yp<yt){
 							status='Expired';
-							color='#b6201f';
+							color='#ff0000';
 						}
 						else
-							{if(parts==today){status='In Progress';
-							color='#12d265';}
-							else{
-							status='New';
-							color='#AA0044';}}
+							{
+								if(yp>yt)
+								{
+									status='New';
+									color='#AAOO44';
+								}
+								else{
+									if(mp<mt){
+										status='Expired';
+										color='#ff0000';
+									}
+									else{
+										if(mp>mt){
+											status='New';
+											color='#AAOO44';
+										}
+										else{
+											if(dp<dt){
+												status='Expired';
+												color='#ff0000';
+											}
+											else{
+												if(dp>dt){
+													status='New';
+													color='#AAOO44';
+												}
+												else{
+													status='Progress';
+													color='#12d265';
+												}
+											}
+										}
+									}
+								}
+							}
+								
 						var obj = {
 							assid: dat.assid,
 							heading: dat.heading,
@@ -222,12 +266,30 @@ router.get('/semester/:sem/department/:dept', (req, res) => {
 						array.push(obj);
 						changeStatus(obj);
 					}
-					res.send(array);
+					fetchpage(page, array, res);
 				}
 			}
 		})
 	}
 })
+
+var fetchpage = function (page, data, res) {
+	var arr = [];
+	var starting = (12 * page) - 12;
+	var ending;
+	if (data[12 * page]) {
+		ending = 12 * page
+	}
+	else {
+		ending = data.length;
+	}
+	console.log(`starting: ${starting}`);
+	console.log(`ending: ${ending}`);
+	for (var i = starting; i < ending; i++) {
+		arr.push(data[i]);
+	}
+	res.send(arr);
+}
 
 //assignment fetch for student (using sem & subject)
 router.get('/semester/:sem/department/:dept/subject/:sub', (req, res) => {
@@ -236,7 +298,7 @@ router.get('/semester/:sem/department/:dept/subject/:sub', (req, res) => {
 	var check = req.check;
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
 	else {
-		var queryStmt = `select * from assignment where semester = ${req.params.sem} && department = ${req.params.dept} && subject = ${req.params.dept}`;
+		var queryStmt = `select * from assignment where semester = ${req.params.sem} && department = ${req.params.dept} && subject = ${req.params.dept} ORDER BY dateOfTest DESC`;
 		con.query(queryStmt, (err, data) => {
 			if (err) {
 			console.log(err);
@@ -253,18 +315,57 @@ router.get('/semester/:sem/department/:dept/subject/:sub', (req, res) => {
 					console.log(data.length);
 					for (let dat of data) {
 						var parts = dat.dateOfTest;
-						var a = parts<today;
-						console.log(a);
-						if(a){
+						parts.setHours(parts.getHours() + 5); 
+						parts.setMinutes(parts.getMinutes() + 30);
+						var yp = parts.getYear();
+						var mp = parts.getMonth();
+						var dp = parts.getDate();
+						var yt = today.getYear();
+						var mt = today.getMonth();
+						var dt = today.getDate();
+						console.log(yp,mp,dp);
+						console.log(yt,mt,dt);
+						
+						if(yp<yt){
 							status='Expired';
-							color='#b6201f';
+							color='#ff0000';
 						}
 						else
-							{if(parts==today){status='Running';
-							color='#12d265';}
-							else{
-							status='Active';
-							color='#AA0044';}}
+							{
+								if(yp>yt)
+								{
+									status='New';
+									color='#AAOO44';
+								}
+								else{
+									if(mp<mt){
+										status='Expired';
+										color='#ff0000';
+									}
+									else{
+										if(mp>mt){
+											status='New';
+											color='#AAOO44';
+										}
+										else{
+											if(dp<dt){
+												status='Expired';
+												color='#ff0000';
+											}
+											else{
+												if(dp>dt){
+													status='New';
+													color='#AAOO44';
+												}
+												else{
+													status='Progress';
+													color='#12d265';
+												}
+											}
+										}
+									}
+								}
+							}
 						var obj = {
 							assid: dat.assid,
 							heading: dat.heading,
@@ -284,6 +385,7 @@ router.get('/semester/:sem/department/:dept/subject/:sub', (req, res) => {
 
 
 						array.push(obj);
+						changeStatus(obj);
 						
 					}
 					res.send(array);
@@ -317,7 +419,7 @@ router.get('/semester/:sem/teacher/:id', (req, res) => {
 	var check = req.check;
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
 	else {
-		var queryStmt = `select * from assignment where teacherId = ${req.params.id} && semester = ${req.params.sem};`;
+		var queryStmt = `select * from assignment where teacherId = ${req.params.id} && semester = ${req.params.sem} ORDER BY dateOfTest DESC;`;
 		con.query(queryStmt, (err, data) => {
 			if (err) {
 			console.log(err);
@@ -332,6 +434,58 @@ router.get('/semester/:sem/teacher/:id', (req, res) => {
 					var array = [];
 					console.log(data.length);
 					for (let dat of data) {
+						var parts = dat.dateOfTest;
+						parts.setHours(parts.getHours() + 5); 
+						parts.setMinutes(parts.getMinutes() + 30);
+						var yp = parts.getYear();
+						var mp = parts.getMonth();
+						var dp = parts.getDate();
+						var yt = today.getYear();
+						var mt = today.getMonth();
+						var dt = today.getDate();
+						console.log(yp,mp,dp);
+						console.log(yt,mt,dt);
+						
+						if(yp<yt){
+							status='Expired';
+							color='#ff0000';
+						}
+						else
+							{
+								if(yp>yt)
+								{
+									status='New';
+									color='#AAOO44';
+								}
+								else{
+									if(mp<mt){
+										status='Expired';
+										color='#ff0000';
+									}
+									else{
+										if(mp>mt){
+											status='New';
+											color='#AAOO44';
+										}
+										else{
+											if(dp<dt){
+												status='Expired';
+												color='#ff0000';
+											}
+											else{
+												if(dp>dt){
+													status='New';
+													color='#AAOO44';
+												}
+												else{
+													status='Progress';
+													color='#12d265';
+												}
+											}
+										}
+									}
+								}
+							}
 						var obj = {
 							assid: dat.assid,
 							heading: dat.heading,
@@ -349,6 +503,7 @@ router.get('/semester/:sem/teacher/:id', (req, res) => {
 							colorCode: dat.colorCode
 						}
 						array.push(obj);
+						changeStatus(obj);
 					}
 					res.send(array);
 				}
@@ -626,6 +781,17 @@ var fetchpage = function (page, data, res) {
 	}
 	res.send(arr);
 }
+
+//Teacher edit general details
+router.post('/update/general/assid/:assid', (req, res)=> {
+	var check = req.check;
+	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
+	else {
+		var assData = req.body;
+		var stmt = ``
+	}
+
+})
 
 
 module.exports = router;
