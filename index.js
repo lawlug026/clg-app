@@ -20,7 +20,7 @@ var con = sql.createConnection({
 });
 
 con.connect(function (err) {
-	if (err) throw err;
+	if (err) console.log(err);;
 	console.log("connected");
 });
 
@@ -78,7 +78,7 @@ app.post('/login', function (req, res, next) {
 					var semester = result[0].Semester;
 					var stm = "select bear from bearer";
 					con.query(stm, (err, res1) => {
-						if (err) throw err;
+						if (err) console.log(err);;
 						else {
 							if (res1.length == 0) {
 								Bearer = 1;
@@ -107,7 +107,7 @@ var func = (bearer, roll) => {
 	console.log("st" + bearer);
 	var stmt1 = "INSERT into bearer VALUES(" + bearer + ", '" + roll + "');";
 	con.query(stmt1, function (err, result) {
-		if (err) throw err;
+		if (err) console.log(err);;
 		else console.log("Insertion successful");
 	});
 	console.log("Inside func");
@@ -119,7 +119,7 @@ app.post('/form', function (req, res) {
 	var bear = req.query.bearer;
 	var stmt2 = "select * from logindata where token = '" + bear + "';";
 	con.query(stmt2, function (err, data) {
-		if (err) throw err;
+		if (err) console.log(err);;
 		else {
 			if (!data[0]) { res.send("User not available"); }
 			else {
@@ -165,7 +165,7 @@ var bearerCheck = function (req, res, next) {
 	var bear = bear.substring(7, bear.length);
 	var stmt2 = `select * from bearer where bear = ${bear}`;
 	con.query(stmt2, function (err, data) {
-		if (err) throw err;
+		if (err) console.log(err);;
 		else {
 			if (!data[0]) {
 			req.check = true;
@@ -193,7 +193,7 @@ app.get('/form/fetch/student/:stid', function (req, res) {
 
 		var formstm1 = `select * from form where Enrollment_No = ${req.params.stid};`;
 		con.query(formstm1, (err, data) => {
-			if (err) throw err;
+			if (err) console.log(err);;
 			else {
 				if (!data[0]) {
 					fetchfromlogin(req.params.stid, res);
@@ -210,7 +210,7 @@ app.get('/form/fetch/student/:stid', function (req, res) {
 function fetchfromform(id, res) {
 	var formstm3 = `select * from form where Enrollment_No = ${id};`;
 	con.query(formstm3, (err, data) => {
-		if (err) throw err;
+		if (err) console.log(err);;
 		else {
 			var obj = {
 				Enrollment_No: data[0].Enrollment_No,
@@ -240,7 +240,7 @@ function fetchfromlogin(id, res) {
 	console.log(id);
 	var formstm2 = `select * from logindata where Enrollment_No = ${id};`;
 	con.query(formstm2, (err, data) => {
-		if (err) throw err;
+		if (err) console.log(err);;
 		else {
 			if (!data[0]) { res.send(JSON.stringify({'message' : "Student not found"})); }
 			else {
@@ -273,7 +273,7 @@ function fetchfromlogin(id, res) {
 
 var insert = function (tableName, assData, res) {
 	con.query(`INSERT INTO ${tableName} SET ?`, assData, function (err, result) {
-		if (err) throw err;
+		if (err) console.log(err);;
 		else {
 
 		}
@@ -306,7 +306,7 @@ app.get('/details/student/page/:page', (req, res) => {
 		var page = req.params.page;
 		var ststmt1 = `select * from form;`;
 		con.query(ststmt1, (err, data) => {
-			if (err) throw err;
+			if (err) console.log(err);
 			else {
 				fetchpage(page, data, res);
 			}
@@ -321,7 +321,7 @@ app.get('/details/teacher/page/:page', (req, res) => {
 		var page = req.params.page;
 		var ststmt1 = `select * from teacher;`;
 		con.query(ststmt1, (err, data) => {
-			if (err) throw err;
+			if (err) console.log(err);
 			else {
 				fetchpage(page, data, res);
 			}
@@ -329,6 +329,25 @@ app.get('/details/teacher/page/:page', (req, res) => {
 	}
 })
 
+
+//Show column Names from form table
+
+app.get('/showform', (req, res)=>{
+	var stm = `show columns from form`;
+	con.query(stm, (err, data)=>{
+		if (err) {
+			console.log(err);
+			res.send(JSON.stringify({ msg: 'Fetch Unsuccessful' }));
+			 }
+			else{				
+				var arr = [];
+				for(i=0; i<data.length; i++){					
+					arr.push(data[i].Field);
+				}
+				res.send(arr);				
+			}
+	})
+})
 
 // //Insert form details
 // app.post('/form/insert/student/:stdid', (req, res) => {
@@ -382,7 +401,7 @@ var deleteData = function (tableName, row, tid) {
 	console.log(row);
 	var delstm = `delete from ${tableName} where ${row} = ${tid};`
 	con.query(delstm, (err, data) => {
-		if (err) throw err;
+		if (err) console.log(err);
 		else {
 
 		}
@@ -402,7 +421,7 @@ app.post('/form/update/student/:stdid', (req, res) => {
 var update = function (tableName, assData, row, id, res) {
 	console.log(row);
 	con.query(`UPDATE ${tableName} SET ? where ${row} = ${id};`, assData, (err, data) => {
-		if (err) throw err;
+		if (err) console.log(err);
 		else {
 			res.send(JSON.stringify({ msg: 'Update Successful' }));
 		}
@@ -455,18 +474,41 @@ app.post('/form/insert/teacher', (req, res) => {
 		else {
 			password = assData.teacherName;
 		}
-
-		insert('teacher', assData, res);
 		var loginData = {
-			Name: assData.teacherName,
-			Enrollment_No: assData.teacherId,
+			Name: assData.teacherName,			
 			Semester: 0,
 			Password: password
 		}
-		insert('logindata', loginData, res);
-		res.send(JSON.stringify({ message: 'Success' }));
+		maxId(loginData, res);
+		
+		insert('teacher', assData, res);
+		
+		
+		
 	}
 })
+var roll;
+
+var maxId = function(loginData, res){
+	var stm = `select MAX(teacherId) from teacher`;
+		con.query(stm, (err, data)=>{
+			if (err) {
+			console.log(err);
+			res.send(JSON.stringify({ msg: 'Fetching unsuccessful' }));
+					 }
+			else{
+				roll = data[0]['MAX(teacherId)']+1;
+				loginData['Enrollment_No'] = roll;
+				
+
+				insert('logindata', loginData, res);
+				res.send(JSON.stringify({ 'New Teacher Id': roll }));
+				
+
+			}
+		})
+
+}
 
 
 //subject & semester fetch according to teacher detials
@@ -477,7 +519,7 @@ app.get('/details/teacher/sem/subject/:tid', (req, res) => {
 	var page = req.params.page;
 	var stm = `select semester, subName from teaches, subject where (subject.subId = teaches.subId) && teaches.teacherId = ${req.params.tid}`;
 	con.query(stm, (err, data) => {
-		if (err) throw err;
+		if (err) console.log(err);
 		else {
 			res.send(data);
 		}
@@ -491,9 +533,9 @@ app.get('/details/subject/page/:page', (req, res) => {
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
 	else {
 	var page = req.params.page;
-	var stm = `select semester, subName, teacherName from subject,teacher where (teaches.teacherId = teacher.teacherId);`;
+	var stm = `select semester, subName, teacherName from subject,teacher, teaches where (teaches.teacherId = teacher.teacherId);`;
 	con.query(stm, (err, data) => {
-		if (err) throw err;
+		if (err) console.log(err);
 		else {
 			fetchpage(page, data, res);
 		}
@@ -509,7 +551,7 @@ app.get('/details/student/semester/:sem/page/:page', (req, res) => {
 		var page = req.params.page;
 		var ststmt1 = `select * from form where Semester = ${req.params.sem};`;
 		con.query(ststmt1, (err, data) => {
-			if (err) throw err;
+			if (err) console.log(err);
 			else {
 				fetchpage(page, data, res);
 			}
@@ -518,24 +560,61 @@ app.get('/details/student/semester/:sem/page/:page', (req, res) => {
 })
 
 
-// Update the form table
+//Fetch Subject semester wise
+app.get('/details/subject/semester/:sem', (req, res) => {
+	var check = req.check;
+	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
+	else {
+		var page = req.params.page;
+		var ststmt1 = `select subName from subject where semester = ${req.params.sem};`;
+		con.query(ststmt1, (err, data) => {
+			if (err) console.log(err);
+			else {
+				res.send(data);}
+		})
+	}
+})
+
+
+// Update the form table, Adding a new column
 
 app.post('/update/form', (req, res) => {
 	var check = req.check;
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
 	else {
-		updateColumn('form', req.body.column, 'VARCHAR(255)', res);
+		addColumn('form', req.body.column, 'VARCHAR(255)', res);
 		
 	}
 })
 
-var updateColumn = function(table, column, datatype, res){
+var addColumn = function(table, column, datatype, res){
 	var stmt = `ALTER TABLE ${table} ADD ${column} ${datatype};`;
 	con.query(stmt, (err, data) => {
 		if (err) {console.log(err);
 		res.send(JSON.stringify({"message":"Column Not Added Successfully"}));}
 		else{
 			res.send(JSON.stringify({"message":"Column Added Successfully"}));
+			
+		}
+	})
+}
+
+app.delete('/update/form/delete', (req, res) => {
+	var check = req.check;
+	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
+	else {
+		deleteColumn('form', req.body.column, res);
+		
+	}
+})
+
+var deleteColumn = function(table, column, res){
+	var stmt = `ALTER TABLE ${table} DROP ${column}`;
+	con.query(stmt, (err, data) => {
+		if (err) {console.log(err);
+		res.send(JSON.stringify({"message":"Column Not Deleted Successfully"}));}
+		else{
+			res.send(JSON.stringify({"message":"Column Deleted Successfully"}));
 			
 		}
 	})

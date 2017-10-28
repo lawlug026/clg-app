@@ -531,7 +531,8 @@ router.post('/submit/student/:stid/assignID/:assid', (req, res) => {
 //function to insert data into DB
 var insert = function (tableName, assData, res) {
 	con.query(`INSERT INTO ${tableName} SET ?`, assData, function (err, result) {
-		if (err) throw err;
+		if (err) {console.log(err);}
+			
 		else {
 
 		}
