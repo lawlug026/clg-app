@@ -105,7 +105,7 @@ var newAssignment = (assData, id, res, teacherName) => {
 	});
 
 	var stmt7 = `create table assRes${id} (studentId char(20)`;
-	for (let ques = 0; ques < assData.ques.length; ques++) {
+	for (var ques = 0; ques < assData.ques.length; ques++) {
 		stmt7 += `, ques${ques + 1} varchar(255)`;
 	}
 	stmt7 += ', total varchar(50));';
