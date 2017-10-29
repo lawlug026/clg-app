@@ -192,7 +192,7 @@ router.get('/semester/:sem/department/:dept/page/:page', (req, res) => {
 					var status = '';
 					var color = '';
 					console.log(data.length);
-					for (let dat of data) {
+					for (var dat of data) {
 						var parts = dat.dateOfTest;
 						parts.setHours(parts.getHours() + 5); 
 						parts.setMinutes(parts.getMinutes() + 30);
@@ -313,7 +313,7 @@ router.get('/semester/:sem/department/:dept/subject/:sub', (req, res) => {
 					var status = '';
 					var color = '';
 					console.log(data.length);
-					for (let dat of data) {
+					for (var dat of data) {
 						var parts = dat.dateOfTest;
 						parts.setHours(parts.getHours() + 5); 
 						parts.setMinutes(parts.getMinutes() + 30);
@@ -433,7 +433,7 @@ router.get('/semester/:sem/teacher/:id', (req, res) => {
 				else {
 					var array = [];
 					console.log(data.length);
-					for (let dat of data) {
+					for (var dat of data) {
 						var parts = dat.dateOfTest;
 						parts.setHours(parts.getHours() + 5); 
 						parts.setMinutes(parts.getMinutes() + 30);
@@ -527,7 +527,7 @@ router.get('/teacher/wans/id/:id', (req, res) => {
 			res.send(JSON.stringify({ msg: 'Insertion Unsuccessful' }));
 			 }
 			else {
-				for (let ques of data) {
+				for (var ques of data) {
 					var obj = {
 						ques: ques.ques,
 						answer: ques.answer,
@@ -559,7 +559,7 @@ router.get('/student/ques/id/:id', (req, res) => {
 			res.send(JSON.stringify({ msg: 'Insertion Unsuccessful' }));
 			 }
 			else {
-				for (let ques of data) {
+				for (var ques of data) {
 					var obj = {
 						ques: ques.ques,
 						op1: ques.op1,
@@ -603,7 +603,7 @@ router.get('/student/wans/id/:id', (req, res) => {
 			 }
 			else {
 				console.log("inside if");
-				for (let ques of data) {
+				for (var ques of data) {
 					var obj = {
 						ques: ques.ques,
 						answer: ques.answer,
