@@ -120,7 +120,7 @@ var newAssignment = (assData, id, res, teacherName) => {
 		}
 	})
 	var stmt6 = `create table assSol${id} (studentId char(20)`;
-	for (let ques = 0; ques < assData.ques.length; ques++) {
+	for (var ques = 0; ques < assData.ques.length; ques++) {
 		stmt6 += `, ques${ques + 1} varchar(255)`;
 	}
 	stmt6 += ');';
@@ -148,7 +148,7 @@ var newAssignment = (assData, id, res, teacherName) => {
 	})
 }
 function insertQuestions(assData, id) {
-	for (i = 0; i < assData.ques.length; i++) {
+	for (var i = 0; i < assData.ques.length; i++) {
 		mysqlJson.insert('ass' + id, {
 			ques: assData.ques[i].qu1,
 			op1: assData.ques[i].op1,
