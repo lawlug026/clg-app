@@ -15,7 +15,7 @@ app.use(cors());
 var con = sql.createConnection({
 	host: "localhost",
 	user: "root",
-	password: "notdefined",
+	password: "abhay",
 	database: "cbpgec"
 });
 
@@ -28,19 +28,21 @@ var dateUTC = new Date();
 var dateUTC = dateUTC.getTime() 
 var today = new Date(dateUTC);
 
+
 //date shifting for IST timezone (+5 hours and 30 minutes)
 today.setHours(today.getHours() + 5); 
 today.setMinutes(today.getMinutes() + 30);
 console.log(today);
 
+// // Catch all other routes and return the index file
 
 
-app.use(jsonFormat);
+// app.use(jsonFormat);
 
-function jsonFormat(req, res, next) {
-	res.setHeader('Content-Type', 'application/json');
-	next();
-}
+// function jsonFormat(req, res, next) {
+// 	res.setHeader('Content-Type', 'application/json');
+// 	next();
+// }
 
 //Global Variables for date
 
@@ -157,7 +159,7 @@ var MysqlJson = require('mysql-json');
 var mysqlJson = new MysqlJson({
 	host: 'localhost',
 	user: 'root',
-	password: 'notdefined',
+	password: 'abhay',
 	database: 'cbpgec'
 });
 var temp = 0;
@@ -173,7 +175,7 @@ var MysqlJson = require('mysql-json');
 var mysqlJson = new MysqlJson({
 	host: 'localhost',
 	user: 'root',
-	password: 'notdefined',
+	password: 'abhay',
 	database: 'cbpgec'
 });
 var t
@@ -197,7 +199,7 @@ var bearerCheck = function (req, res, next) {
 	});
 }
 
-app.use(bearerCheck);
+// app.use(bearerCheck);
 app.use('/feedback', feedback);
 app.use('/assignment', assignment);
 
@@ -680,7 +682,6 @@ app.get('/list/semester/teacher/:tid', (req, res) => {
 })
 
 
-// // Catch all other routes and return the index file
 app.get('*', (req, res) => {
 	console.log("main");
 	res.sendFile(path.join(__dirname, 'dist/index.html'));
