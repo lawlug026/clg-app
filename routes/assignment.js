@@ -4,7 +4,7 @@ var router = express.Router();
 var con = sql.createConnection({
 	host: "localhost",
 	user: "root",
-	password: "abhay",
+	password: "notdefined",
 	database: "cbpgec"
 });
 con.connect(function (err) {
@@ -18,7 +18,7 @@ var MysqlJson = require('mysql-json');
 var mysqlJson = new MysqlJson({
 	host: 'localhost',
 	user: 'root',
-	password: 'abhay',
+	password: 'notdefined',
 	database: 'cbpgec'
 });
 
