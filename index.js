@@ -397,8 +397,8 @@ app.delete('/form/delete/student/:stid', (req, res) => {
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' }));}
 	else {
 		var stid = req.params.stid;
-		deleteData('form', 'roll', stid);
-		deleteData('logindata', 'roll', stid);
+		deleteData('form', 'Enrollment_No', stid);
+		deleteData('logindata', 'Enrollment_No', stid);
 		res.send(JSON.stringify({ message: 'Student Deletion Successful' }));
 	}
 })
@@ -412,7 +412,7 @@ app.delete('/form/delete/teacher/:tid', (req, res) => {
 
 		deleteData('teacher', 'teacherId', tid);
 		deleteData('teaches', 'teacherId', tid);
-		deleteData('logindata', 'roll', tid);
+		deleteData('logindata', 'Enrollment_No', tid);
 		res.send(JSON.stringify({ message: 'Teacher Deletion Successful' }));
 	}
 })
