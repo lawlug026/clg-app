@@ -1,6 +1,6 @@
 {
-  "short_name": "CBPGEC",
-  "name": "WELCOME TO CBPGEC",
+  "short_name": "CBPGEC App",
+  "name": "CBPGEC Application ++",
   "icons": [
     {
       "src": "assets/logoclg.png",
@@ -20,5 +20,5 @@
   ],
   "start_url": "/index.html",
   "display": "standalone",
-  "orientation": "potrait"
+  "orientation": "landscape"
 }
