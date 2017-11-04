@@ -1,0 +1,8 @@
+{
+	"Title":"title1",
+	"startDate":"12-05-2016",
+	"endDate":"12-09-2016",
+	"Year": [1,2,3,4],
+	"Column":["col1", "col2", "col3"],
+	"ColumnType":["int", "int", "varchar"]
+}

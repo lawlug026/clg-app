@@ -7,7 +7,7 @@ const sql = require('mysql');
 var cors = require('cors');
 var feedback = require('./routes/feedback');
 var assignment = require('./routes/assignment');
-
+var newform = require('./routes/form');
 
 const app = express();
 //Initialising the basic token
@@ -202,6 +202,7 @@ var bearerCheck = function (req, res, next) {
 // app.use(bearerCheck);
 app.use('/feedback', feedback);
 app.use('/assignment', assignment);
+app.use('/newform', newform);
 
 
 //form fetch from student

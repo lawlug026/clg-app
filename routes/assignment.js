@@ -499,8 +499,8 @@ router.get('/semester/:sem/teacher/:id', (req, res) => {
 							dateOfTest: dat.dateOfTest,
 							department: dat.department,
 							instructions: dat.instructions,
-							status: dat.status,
-							colorCode: dat.colorCode
+							status: status,
+							colorCode: color
 						}
 						array.push(obj);
 						changeStatus(obj);
