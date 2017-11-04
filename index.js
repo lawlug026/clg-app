@@ -63,25 +63,18 @@ var Bearer = 0;
 app.post('/login', function (req, res, next) {
 	var a1 = req.query.id;
 	var a2 = req.query.pass;
-	console.log(a2);
-	console.log(a1)
 	var a4 = JSON.parse(JSON.stringify(req.headers));
-	console.log(a4.authorization);
 	if (a4.authorization == 'Basic cbpgec-a24-u26-n20-p21') {
-		var year = getYear(a1);
-		var stmt = `select * from log${year} where Enrollment_No = '${a1}' && Password = '${a2}'`;
-		console.log(stmt);
-		con.query(stmt, function (err, result) {
+		if(a1 == 0 || a1.length<5){
+			var stmt = `select * from logindatat where Enrollment_No = '${a1}' && Password = '${a2}'`;
+			con.query(stmt, function (err, result) {
 			if (err) {
-				// console.log(err);
 				res.send(JSON.stringify({ error: 'Invalid Credentials dvfd' }));
 			}
 			else {
-				console.log("Inside user checkig");
 				if (result.length == 0) { res.send(JSON.stringify({ 'error': 'Invalid Credentials' })); }
 				else {
-					var roll = result[0].Enrollment_No;
-					
+					var roll = result[0].Enrollment_No;					
 					var name = result[0].Password;
 					var email = result[0].Email;
 					var username = result[0].Name;
@@ -90,41 +83,68 @@ app.post('/login', function (req, res, next) {
 					con.query(stm, (err, res1) => {
 						if (err) console.log(err);
 						else {
-							if (res1.length == 0) {
-								Bearer = 1;
-							}
+							if (res1.length == 0) Bearer = 1;						
 							else {
-								// var i = res.length();
-								console.log(res1.length);
 								var ln = res1.length - 1;
 								Bearer = parseInt(res1[ln].bear) + 1;
 							}
-							console.log(Bearer);
-							Bearer = func(Bearer, roll);
-							if(roll.length<=4)
-							res.send(JSON.stringify({ access_token: Bearer, department:null, name: username, id: roll, email: email, semester: semester}));
-							else{
-								var ver = roll.substring(7,9);
-								console.log(ver);
-								if(ver==31)
-							res.send(JSON.stringify({ access_token: Bearer, department:'IT', name: username, id: roll, email: email, semester: semester}));
-								else {
-									res.send(JSON.stringify({ access_token: Bearer, department:'civil', name: username, id: roll, email: email, semester: semester}));
-								}
-
-							}						
-								}
-						})
-					
+							Bearer = func(Bearer, roll);	
+							res.send(JSON.stringify({ access_token: Bearer, department:null, name: username, id: roll, email: email, semester: semester}));			
+							}
+					});
 				}
 			}
 		})
+		}
+		else	
+		{var year = getYear(a1);
+				var stmt = `select * from log${year} where Enrollment_No = '${a1}' && Password = '${a2}'`;
+				console.log(stmt);
+				con.query(stmt, function (err, result) {
+					if (err) res.send(JSON.stringify({ error: 'Invalid Credentials dvfd' }));
+					else {
+						if (result.length == 0) res.send(JSON.stringify({ 'error': 'Invalid Credentials' })); 
+						else {
+							var roll = result[0].Enrollment_No;
+							var name = result[0].Password;
+							var email = result[0].Email;
+							var username = result[0].Name;
+							var semester = result[0].Semester;
+							var stm = "select bear from bearer";
+							con.query(stm, (err, res1) => {
+								if (err) console.log(err);
+								else {
+									if (res1.length == 0) {
+										Bearer = 1;
+									}
+									else {
+										var ln = res1.length - 1;
+										Bearer = parseInt(res1[ln].bear) + 1;
+									}
+									Bearer = func(Bearer, roll);
+									if(roll.length<=4)
+									res.send(JSON.stringify({ access_token: Bearer, department:null, name: username, id: roll, email: email, semester: semester}));
+									else{
+										var ver = roll.substring(7,9);
+										if(ver==31)
+									res.send(JSON.stringify({ access_token: Bearer, department:'IT', name: username, id: roll, email: email, semester: semester}));
+										else {
+											res.send(JSON.stringify({ access_token: Bearer, department:'civil', name: username, id: roll, email: email, semester: semester}));
+										}
+		
+									}						
+										}
+								})
+							
+						}
+					}
+				})}
 	}
 	else {
 		res.send(JSON.stringify({ msg: 'Access Denied' }));
 	}
-});
 
+});
 var getYear = function(id){
 	var year = id.substring(9,11);
 	console.log(year);
