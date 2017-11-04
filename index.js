@@ -68,7 +68,8 @@ app.post('/login', function (req, res, next) {
 	var a4 = JSON.parse(JSON.stringify(req.headers));
 	console.log(a4.authorization);
 	if (a4.authorization == 'Basic cbpgec-a24-u26-n20-p21') {
-		var stmt = `select * from logindata where Enrollment_No = '${a1}' && Password = '${a2}'`;
+		var year = getYear(a1);
+		var stmt = `select * from log${year} where Enrollment_No = '${a1}' && Password = '${a2}'`;
 		console.log(stmt);
 		con.query(stmt, function (err, result) {
 			if (err) {
@@ -80,6 +81,7 @@ app.post('/login', function (req, res, next) {
 				if (result.length == 0) { res.send(JSON.stringify({ 'error': 'Invalid Credentials' })); }
 				else {
 					var roll = result[0].Enrollment_No;
+					
 					var name = result[0].Password;
 					var email = result[0].Email;
 					var username = result[0].Name;
@@ -123,6 +125,18 @@ app.post('/login', function (req, res, next) {
 	}
 });
 
+var getYear = function(id){
+	var year = id.substring(9,11);
+	console.log(year);
+	var curYear = today.getYear();
+	var current = (curYear.toString()).substring(1,3);
+	console.log(current);
+	var yearc = current-year+1;
+	console.log(yearc);
+	return yearc;
+}
+
+getYear('02620703114');
 var func = (bearer, roll) => {
 	console.log("st" + bearer);
 	var stmt1 = "INSERT into bearer VALUES(" + bearer + ", '" + roll + "');";
@@ -207,20 +221,22 @@ app.use('/newform', newform);
 
 //form fetch from student
 app.get('/form/fetch/student/:stid', function (req, res) {
+	var a = req.params.stid;
+	var year = getYear(a);
 	console.log(req.params.stid);
 	var check = req.check;
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
 	else {
 
-		var formstm1 = `select * from form where Enrollment_No = ${req.params.stid};`;
+		var formstm1 = `select * from form${year} where Enrollment_No = ${req.params.stid};`;
 		con.query(formstm1, (err, data) => {
 			if (err) console.log(err);
 			else {
 				if (!data[0]) {
-					fetchfromlogin(req.params.stid, res);
+					fetchfromlogin(req.params.stid, res, year);
 				}
 				else {
-					fetchfromform(req.params.stid, res);
+					fetchfromform(req.params.stid, res, year);
 				}
 			}
 
@@ -228,8 +244,8 @@ app.get('/form/fetch/student/:stid', function (req, res) {
 	}
 })
 //function to fetch details from form
-function fetchfromform(id, res) {
-	var formstm3 = `select * from form where Enrollment_No = ${id};`;
+function fetchfromform(id, res, year) {
+	var formstm3 = `select * from form${year} where Enrollment_No = ${id};`;
 	con.query(formstm3, (err, data) => {
 		if (err) console.log(err);
 		else {
@@ -257,9 +273,9 @@ function fetchfromform(id, res) {
 	})
 }
 //function to fetch details from logindata
-function fetchfromlogin(id, res) {
+function fetchfromlogin(id, res, year) {
 	console.log(id);
-	var formstm2 = `select * from logindata where Enrollment_No = ${id};`;
+	var formstm2 = `select * from log${year} where Enrollment_No = ${id};`;
 	con.query(formstm2, (err, data) => {
 		if (err) console.log(err);
 		else {
@@ -354,7 +370,7 @@ app.get('/details/teacher/page/:page', (req, res) => {
 //Show column Names from form table
 
 app.get('/showform', (req, res)=>{
-	var stm = `show columns from form`;
+	var stm = `show columns from form1`;
 	con.query(stm, (err, data)=>{
 		if (err) {
 			console.log(err);
@@ -398,8 +414,11 @@ app.delete('/form/delete/student/:stid', (req, res) => {
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' }));}
 	else {
 		var stid = req.params.stid;
-		deleteData('form', 'Enrollment_No', stid);
-		deleteData('logindata', 'Enrollment_No', stid);
+		var year = getYear(stid);
+		var form = `form${year}`;
+		var log = `log${year}`;
+		deleteData(form, 'Enrollment_No', stid);
+		deleteData(log, 'Enrollment_No', stid);
 		res.send(JSON.stringify({ message: 'Student Deletion Successful' }));
 	}
 })
@@ -413,7 +432,7 @@ app.delete('/form/delete/teacher/:tid', (req, res) => {
 
 		deleteData('teacher', 'teacherId', tid);
 		deleteData('teaches', 'teacherId', tid);
-		deleteData('logindata', 'Enrollment_No', tid);
+		deleteData('logindatat', 'Enrollment_No', tid);
 		res.send(JSON.stringify({ message: 'Teacher Deletion Successful' }));
 	}
 })
@@ -436,7 +455,9 @@ app.post('/form/update/student/:stdid', (req, res) => {
 	else {
 		var assData = req.body;
 		var stid = req.params.stdid;
-		update('form', assData, 'Enrollment_No', stid, res);
+		var year = getYear(stid);
+		var form = `form${year}`;
+		update(form, assData, 'Enrollment_No', stid, res);
 	}
 })
 var update = function (tableName, assData, row, id, res) {
@@ -456,14 +477,18 @@ app.post('/form/insert/student', (req, res) => {
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
 	else {
 		var assData = req.body;
-		insert('form', assData, res);
+		var stid = assData.Enrollment_No;
+		var year = getYear(stid);
+		var form = `form${year}`;
+		
+		insert(form, assData, res);
 		var indexSpace = assData.Name.indexOf(" ");
 		var password;
 		if (indexSpace > 0) {
 			password = assData.Name.substring(0, indexSpace).toLowerCase();
 		}
 		else {
-			password = assData.name;
+			password = assData.Name.toLowerCase();
 		}
 
 		console.log(password);
@@ -471,11 +496,11 @@ app.post('/form/insert/student', (req, res) => {
 			Enrollment_No: assData.Enrollment_No,
 			Name: assData.Name,
 			Password: password,
-			Email: assData.Email,
 			Semester: assData.Semester
 
 		}
-		insert('logindata', loginData, res);
+		var log = `log${year}`;
+		insert(log, loginData, res);
 		res.send(JSON.stringify({ message: "success" }));
 
 	}
@@ -522,7 +547,7 @@ var maxId = function(loginData, res){
 				loginData['Enrollment_No'] = roll;
 				
 
-				insert('logindata', loginData, res);
+				insert('logindatat', loginData, res);
 				res.send(JSON.stringify({ 'New Teacher Id': roll }));
 				
 
@@ -570,7 +595,9 @@ app.get('/details/student/semester/:sem/page/:page', (req, res) => {
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
 	else {
 		var page = req.params.page;
-		var ststmt1 = `select * from form where Semester = ${req.params.sem};`;
+		var sem = req.params.sem;
+		var year = getYearFromSem(sem);
+		var ststmt1 = `select * from form${year} where Semester = ${req.params.sem};`;
 		con.query(ststmt1, (err, data) => {
 			if (err) console.log(err);
 			else {
@@ -586,7 +613,6 @@ app.get('/details/subject/semester/:sem', (req, res) => {
 	var check = req.check;
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
 	else {
-		var page = req.params.page;
 		var ststmt1 = `select subName from subject where semester = ${req.params.sem};`;
 		con.query(ststmt1, (err, data) => {
 			if (err) console.log(err);
@@ -603,7 +629,10 @@ app.post('/update/form', (req, res) => {
 	var check = req.check;
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
 	else {
-		addColumn('form', req.body.column, 'VARCHAR(255)', res);
+		addColumn('form1', req.body.column, 'VARCHAR(255)', res);
+		addColumn('form2', req.body.column, 'VARCHAR(255)', res);
+		addColumn('form3', req.body.column, 'VARCHAR(255)', res);
+		addColumn('form4', req.body.column, 'VARCHAR(255)', res);
 		
 	}
 })
@@ -619,28 +648,19 @@ var addColumn = function(table, column, datatype, res){
 		}
 	})
 }
-
+//route to delete the column of any form
 app.delete('/update/form/delete/:column', (req, res) => {
 	var check = req.check;
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
 	else {
 		var column = req.params.column;
-		deleteColumn('form', column, res);
+		deleteColumn('form1', column, res);
+		deleteColumn('form2', column, res);
+		deleteColumn('form3', column, res);
+		deleteColumn('form4', column, res);
 		
 	}
 })
-
-var deleteColumn = function(table, column, res){
-	var stmt = `ALTER TABLE ${table} DROP ${column}`;
-	con.query(stmt, (err, data) => {
-		if (err) {console.log(err);
-		res.send(JSON.stringify({"message":"Column Not Deleted Successfully"}));}
-		else{
-			res.send(JSON.stringify({"message":"Column Deleted Successfully"}));
-			
-		}
-	})
-}
 
 
 app.get('/details/semester/:sem', (req, res) => {
@@ -703,3 +723,32 @@ const server = http.createServer(app);
  * Listen on provided port, on all network interfaces.
  */
 server.listen(port, () => console.log(`API running on localhost:${port}`));
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////GLOBAL FUNCTIONS///////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+var getYearFromSem = function(sem){
+	if(sem==1 || sem==2) return 1;
+	if(sem==3 || sem==4) return 2;
+	if(sem==5 || sem==6) return 3;
+	if(sem==7 || sem==8) return 4;
+
+}
+
+console.log(getYearFromSem(8));
+
+
+var deleteColumn = function(table, column, res){
+	var stmt = `ALTER TABLE ${table} DROP ${column}`;
+	con.query(stmt, (err, data) => {
+		if (err) {console.log(err);
+		res.send(JSON.stringify({"message":"Column Not Deleted Successfully"}));}
+		else{
+			res.send(JSON.stringify({"message":"Column Deleted Successfully"}));
+			
+		}
+	})
+}

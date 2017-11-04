@@ -170,7 +170,7 @@ var statuts = "";
 var color = "";
 
 //assignment fetch for student (using sem)
-router.get('/semester/:sem/department/:dept/page/:page', (req, res) => {
+router.get('/semester/:sem/department/:dept/page/:page/stdid/:stdid', (req, res) => {
 	console.log(req.params.id);
 	console.log(req.params.sem);
 	var page = req.params.page;
@@ -188,6 +188,9 @@ router.get('/semester/:sem/department/:dept/page/:page', (req, res) => {
 					res.send(JSON.stringify({ msg: 'No Assignments Available' }));
 				}
 				else {
+					var stStatus = "";
+							var stColor = "";
+
 					var array = [];
 					var status = '';
 					var color = '';
@@ -245,6 +248,9 @@ router.get('/semester/:sem/department/:dept/page/:page', (req, res) => {
 									}
 								}
 							}
+
+							
+							
 								
 						var obj = {
 							assid: dat.assid,
@@ -263,13 +269,53 @@ router.get('/semester/:sem/department/:dept/page/:page', (req, res) => {
 							colorCode: color
 						}
 
-						array.push(obj);
+						var objSt = {
+							assid: dat.assid,
+							heading: dat.heading,
+							teacherId: dat.teacherId,
+							semester: dat.semester,
+							startTime: dat.startTime,
+							endTime: dat.endTime,
+							date: dat.date,
+							teacherName: dat.teacherName,
+							subject: dat.subject,
+							dateOfTest: dat.dateOfTest,
+							department: dat.department,
+							instructions: dat.instructions,
+							status: stStatus,
+							colorCode: stColor
+						}
+						if(status=="Expired"||status=="Progress"){
+								var stm = `select * from assSol${dat.assid} where studentId = ${req.params.stdid};`;
+								con.query(stm, (err, result)=>{
+									if (err) console.log(err);
+									else{
+										if(result[0]){
+											console.log("submitted")
+											objSt["status"] = "Submitted";
+											objSt["color"] = "Green";
+										}
+										else{objSt["status"] = "Expired";
+											objSt["color"] = "red";}
+									}
+								})
+							}
+							
+							console.log(stStatus);
+							console.log(stColor);
+						array.push(objSt);
+
+
+						console.log(objSt)
 						changeStatus(obj);
+						
+							}
 					}
-					fetchpage(page, array, res);
+					res.send(array)
+					// fetchpage(page, array, res);
 				}
 			}
-		})
+		)
 	}
 })
 
@@ -577,22 +623,20 @@ router.get('/student/ques/id/:id', (req, res) => {
 
 var expired = false;
 //fetching of ans when assignment is expired
-router.get('/student/wans/id/:id', (req, res) => {
+router.get('/student/wans/id/:id/stid/:stid', (req, res) => {
 	console.log(req.params.id);
 	var id = req.params.id;
+	var stid = req.params.stid;
 	var check = req.check;
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
 	else {
-		var stm = `select status from assignment where assid = ${id};`;
-	con.query(stm, (err, result)=>{
-		if (err) {
-			console.log(err);
-			res.send(JSON.stringify({ msg: 'Insertion Unsuccessful' }));
-			 }
-			 else{
-			 	if (result[0].status == 'Expired'){
-			console.log('w1');
-			var tableName = 'ass' + req.params.id;
+		
+			 		var stm = `select * from assSol${req.params.id} where studentId = ${stid};`;
+			 		con.query(stm, (err, result)=>{
+			 			if (err) console.log(err);
+			 			else{
+			 				if(result[0]){
+			 						var tableName = 'ass' + req.params.id;
 
 		var queryStmt = `select * from ${tableName}`;
 		var array = [];
@@ -607,21 +651,52 @@ router.get('/student/wans/id/:id', (req, res) => {
 					var obj = {
 						ques: ques.ques,
 						answer: ques.answer,
-						op1: ques.op1,
-						op2: ques.op2,
-						op3: ques.op3,
-						op4: ques.op4
 					}
 					array.push(obj);
 				}
-				res.send(array);
+				var obj1 = {
+					status:"Submitted",
+					ans:array
+				}
+				res.send(obj1);
 			}
 		})
-	}}
+
+			 				}
+			 			}
+			 		})
+			 }
+			})
+// 			 	if (result[0].status == 'Expired'){
+// 			console.log('w1');
+// 			var tableName = 'ass' + req.params.id;
+
+// 		var queryStmt = `select * from ${tableName}`;
+// 		var array = [];
+// 		con.query(queryStmt, (err, data) => {
+// 			if (err) {
+// 			console.log(err);
+// 			res.send(JSON.stringify({ msg: 'Insertion Unsuccessful' }));
+// 			 }
+// 			else {
+// 				console.log("inside if");
+// 				for (var ques of data) {
+// 					var obj = {
+// 						ques: ques.ques,
+// 						answer: ques.answer,
+// 						op1: ques.op1,
+// 						op2: ques.op2,
+// 						op3: ques.op3,
+// 						op4: ques.op4
+// 					}
+// 					array.push(obj);
+// 				}
+// 				res.send(array);
+// 			}
+// 		})
+// 	}}
 		
-})
-}
-});
+// })
 
 
 
@@ -788,7 +863,31 @@ router.post('/update/general/assid/:assid', (req, res)=> {
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
 	else {
 		var assData = req.body;
-		var stmt = ``
+		var stmt = `UPDATE assignment SET ? where assid = ${req.params.assid}`;
+		con.query(stmt, assData, (err, result) => {
+			if (err) console.log(err);
+			else{
+				res.send(JSON.stringify({"message":"Updation successful"}));
+			}
+		})
+	}
+
+})
+
+
+//Teacher edit Questions details
+router.post('/update/questions/assid/:assid', (req, res)=> {
+	var check = req.check;
+	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
+	else {
+		var assData = req.body;
+		var stmt = `UPDATE ass${req.params.assid} SET ? where assid = ${req.params.assid}`;
+		con.query(stmt, assData, (err, result) => {
+		if (err) console.log(err);
+		else{
+			res.send(JSON.stringify({"message":"Updation successful"}));
+		}
+		})
 	}
 
 })
