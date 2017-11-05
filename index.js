@@ -269,7 +269,7 @@ app.get('/details/teacher/page/:page', (req, res) => {
 //Show column Names from form table
 
 app.get('/showform', (req, res)=>{
-	var stm = `show columns from form1`;
+	var stm = `show columns from Form1`;
 	con.query(stm, (err, data)=>{
 		if (err) {
 			console.log(err);
@@ -449,7 +449,7 @@ app.get('/details/student/semester/:sem/page/:page', (req, res) => {
 		var page = req.params.page;
 		var sem = req.params.sem;
 		var year = getYearFromSem(sem);
-		var ststmt1 = `select * from form${year} where Semester = ${req.params.sem};`;
+		var ststmt1 = `select * from log${year} where Semester = ${req.params.sem};`;
 		con.query(ststmt1, (err, data) => {
 			if (err) console.log(err);
 			else {
@@ -481,10 +481,10 @@ app.post('/update/form', (req, res) => {
 	var check = req.check;
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
 	else {
-		addColumn('form1', req.body.column, 'VARCHAR(255)', res);
-		addColumn('form2', req.body.column, 'VARCHAR(255)', res);
-		addColumn('form3', req.body.column, 'VARCHAR(255)', res);
-		addColumn('form4', req.body.column, 'VARCHAR(255)', res);
+		addColumn('log1', req.body.column, 'VARCHAR(255)', res);
+		addColumn('log2', req.body.column, 'VARCHAR(255)', res);
+		addColumn('log3', req.body.column, 'VARCHAR(255)', res);
+		addColumn('log4', req.body.column, 'VARCHAR(255)', res);
 	}
 })
 
@@ -495,10 +495,10 @@ app.delete('/update/form/delete/:column', (req, res) => {
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
 	else {
 		var column = req.params.column;
-		deleteColumn('form1', column, res);
-		deleteColumn('form2', column, res);
-		deleteColumn('form3', column, res);
-		deleteColumn('form4', column, res);
+		deleteColumn('log1', column, res);
+		deleteColumn('log2', column, res);
+		deleteColumn('log3', column, res);
+		deleteColumn('log4', column, res);
 	}
 })
 
