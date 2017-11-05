@@ -124,5 +124,22 @@ router.delete('/delete/id/:id', (req, res) => {
 		}		
 })
 
+var fetchpage = function (page, data, res) {
+
+	var arr = [];
+	var starting = (12 * page) - 12;
+	var ending;
+	if (data[12 * page]) {
+		ending = 12 * page
+	}
+	else {
+		ending = data.length;
+	}
+	for (var i = starting; i < ending; i++) {
+		arr.push(data[i]);
+	}
+	res.send(arr);
+}
+
 
 module.exports = router;
