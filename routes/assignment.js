@@ -799,6 +799,11 @@ router.post('/update/questions/assid/:assid', (req, res)=> {
 	}
 
 })
-
+var getYearFromSem = function(sem){
+	if(sem==1 || sem==2) return 1;
+	if(sem==3 || sem==4) return 2;
+	if(sem==5 || sem==6) return 3;
+	if(sem==7 || sem==8) return 4;
+}
 
 module.exports = router;
