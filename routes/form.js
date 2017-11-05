@@ -56,7 +56,7 @@ router.post('/create', (req, res) => {
 				var d = newData.Title+a[year];
 				var ctstm = `create table ${d} AS (SELECT NULL`;
 				for (col in b){
-					if(arr.includes(b[col])){
+					if(arr.indexOf(b[col])>=0){
 						arr2.push(b[col]);
 						ctstm+= `, ${b[col]} `;
 					}
@@ -64,7 +64,7 @@ router.post('/create', (req, res) => {
 						arr1.push(b[col]);
 						}
 				}
-				ctstm+=`from log${a[year]});`;
+				ctstm+=` from log${a[year]});`;
 				con.query(ctstm, (err, data)=>{
 					if (err){console.log(err)}
 					else{

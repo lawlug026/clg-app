@@ -42,8 +42,6 @@ var fetchpage = function (page, data, res) {
 	else {
 		ending = data.length;
 	}
-	console.log(`starting: ${starting}`);
-	console.log(`ending: ${ending}`);
 	for (var i = starting; i < ending; i++) {
 		arr.push(data[i]);
 	}
@@ -52,7 +50,6 @@ var fetchpage = function (page, data, res) {
 
 //To Delete Data
 var deleteData = function (tableName, row, tid, res) {
-	console.log(row);
 	var delstm = `delete from ${tableName} where ${row} = ${tid};`
 	con.query(delstm, (err, data) => {
 		if (err) {console.log(err);

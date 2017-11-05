@@ -171,8 +171,6 @@ var color = "";
 
 //assignment fetch for student (using sem)
 router.get('/semester/:sem/department/:dept/page/:page/stdid/:stdid', (req, res) => {
-	console.log(req.params.id);
-	console.log(req.params.sem);
 	var page = req.params.page;
 	var check = req.check;
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
@@ -189,12 +187,11 @@ router.get('/semester/:sem/department/:dept/page/:page/stdid/:stdid', (req, res)
 				}
 				else {
 					var stStatus = "";
-							var stColor = "";
-
+					var stColor = "";
 					var array = [];
 					var status = '';
 					var color = '';
-					console.log(data.length);
+					var c=0;
 					for (var dat of data) {
 						var parts = dat.dateOfTest;
 						parts.setHours(parts.getHours() + 5); 
@@ -205,9 +202,6 @@ router.get('/semester/:sem/department/:dept/page/:page/stdid/:stdid', (req, res)
 						var yt = today.getYear();
 						var mt = today.getMonth();
 						var dt = today.getDate();
-						console.log(yp,mp,dp);
-						console.log(yt,mt,dt);
-						
 						if(yp<yt){
 							status='Expired';
 							color='#ff0000';
@@ -247,11 +241,7 @@ router.get('/semester/:sem/department/:dept/page/:page/stdid/:stdid', (req, res)
 										}
 									}
 								}
-							}
-
-							
-							
-								
+							}								
 						var obj = {
 							assid: dat.assid,
 							heading: dat.heading,
@@ -268,7 +258,6 @@ router.get('/semester/:sem/department/:dept/page/:page/stdid/:stdid', (req, res)
 							status: status,
 							colorCode: color
 						}
-
 						var objSt = {
 							assid: dat.assid,
 							heading: dat.heading,
@@ -293,26 +282,31 @@ router.get('/semester/:sem/department/:dept/page/:page/stdid/:stdid', (req, res)
 										if(result[0]){
 											console.log("submitted")
 											objSt["status"] = "Submitted";
-											objSt["color"] = "Green";
+											objSt["colorCode"] = "Green";
+											console.log(objSt);
+											array.push(objSt);
+										
 										}
 										else{objSt["status"] = "Expired";
-											objSt["color"] = "red";}
+											objSt["color"] = "red";
+										console.log(objSt);
+									array.push(objSt);}
 									}
 								})
-							}
-							
-							console.log(stStatus);
-							console.log(stColor);
-						array.push(objSt);
-
-
-						console.log(objSt)
+								
+							}							
+						else{array.push(obj);
+						}	
 						changeStatus(obj);
+						c=c+1;
+						console.log(c);
 						
 							}
+							if(c=data.length) {res.send(array);}
+
 					}
-					res.send(array)
-					// fetchpage(page, array, res);
+					
+					//fetchpage(page, array, res);
 				}
 			}
 		)
@@ -329,8 +323,6 @@ var fetchpage = function (page, data, res) {
 	else {
 		ending = data.length;
 	}
-	console.log(`starting: ${starting}`);
-	console.log(`ending: ${ending}`);
 	for (var i = starting; i < ending; i++) {
 		arr.push(data[i]);
 	}
@@ -339,8 +331,6 @@ var fetchpage = function (page, data, res) {
 
 //assignment fetch for student (using sem & subject)
 router.get('/semester/:sem/department/:dept/subject/:sub', (req, res) => {
-	console.log(req.params.id);
-	console.log(req.params.sem);
 	var check = req.check;
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
 	else {
@@ -358,7 +348,6 @@ router.get('/semester/:sem/department/:dept/subject/:sub', (req, res) => {
 					var array = [];
 					var status = '';
 					var color = '';
-					console.log(data.length);
 					for (var dat of data) {
 						var parts = dat.dateOfTest;
 						parts.setHours(parts.getHours() + 5); 
@@ -369,9 +358,6 @@ router.get('/semester/:sem/department/:dept/subject/:sub', (req, res) => {
 						var yt = today.getYear();
 						var mt = today.getMonth();
 						var dt = today.getDate();
-						console.log(yp,mp,dp);
-						console.log(yt,mt,dt);
-						
 						if(yp<yt){
 							status='Expired';
 							color='#ff0000';
@@ -428,11 +414,8 @@ router.get('/semester/:sem/department/:dept/subject/:sub', (req, res) => {
 							status: status,
 							colorCode: color
 						}
-
-
 						array.push(obj);
-						changeStatus(obj);
-						
+						changeStatus(obj);						
 					}
 					res.send(array);
 				}
@@ -446,8 +429,7 @@ var changeStatus = function(obj){
 	var stm = `UPDATE assignment SET status = '${obj.status}', colorCode = '${obj.colorCode}' where assid = ${obj.assid}`;
 	con.query(stm, (err, result)=>{
 		if (err) {
-			console.log(err);
-			
+			console.log(err);			
 			 }
 		else{
 			console.log('Update Successful');
@@ -460,8 +442,6 @@ var changeStatus = function(obj){
 //fetch assignment for teacher
 
 router.get('/semester/:sem/teacher/:id', (req, res) => {
-	console.log(req.params.id);
-	console.log(req.params.sem);
 	var check = req.check;
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
 	else {
@@ -472,26 +452,21 @@ router.get('/semester/:sem/teacher/:id', (req, res) => {
 			res.send(JSON.stringify({ msg: 'Insertion Unsuccessful' }));
 			 }
 			else {
-
 				if (!data[0]) {
 					res.send(JSON.stringify({ msg: 'No assignments Available' }));
 				}
 				else {
 					var array = [];
-					console.log(data.length);
 					for (var dat of data) {
-						var parts = dat.dateOfTest;
-						parts.setHours(parts.getHours() + 5); 
-						parts.setMinutes(parts.getMinutes() + 30);
-						var yp = parts.getYear();
-						var mp = parts.getMonth();
-						var dp = parts.getDate();
-						var yt = today.getYear();
-						var mt = today.getMonth();
-						var dt = today.getDate();
-						console.log(yp,mp,dp);
-						console.log(yt,mt,dt);
-						
+					var parts = dat.dateOfTest;
+					parts.setHours(parts.getHours() + 5); 
+					parts.setMinutes(parts.getMinutes() + 30);
+					var yp = parts.getYear();
+					var mp = parts.getMonth();
+					var dp = parts.getDate();
+					var yt = today.getYear();
+					var mt = today.getMonth();
+					var dt = today.getDate();
 						if(yp<yt){
 							status='Expired';
 							color='#ff0000';
@@ -560,7 +535,6 @@ router.get('/semester/:sem/teacher/:id', (req, res) => {
 
 // Teacher fetch soln key with ques
 router.get('/teacher/wans/id/:id', (req, res) => {
-	console.log(req.params.id);
 	var check = req.check;
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
 	else {
@@ -592,7 +566,6 @@ router.get('/teacher/wans/id/:id', (req, res) => {
 
 // student fetch ques during test
 router.get('/student/ques/id/:id', (req, res) => {
-	console.log(req.params.id);
 	var check = req.check;
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
 	else {
@@ -624,20 +597,17 @@ router.get('/student/ques/id/:id', (req, res) => {
 var expired = false;
 //fetching of ans when assignment is expired
 router.get('/student/wans/id/:id/stid/:stid', (req, res) => {
-	console.log(req.params.id);
 	var id = req.params.id;
 	var stid = req.params.stid;
 	var check = req.check;
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
-	else {
-		
+	else {		
 			 		var stm = `select * from assSol${req.params.id} where studentId = ${stid};`;
 			 		con.query(stm, (err, result)=>{
 			 			if (err) console.log(err);
 			 			else{
 			 				if(result[0]){
 			 						var tableName = 'ass' + req.params.id;
-
 		var queryStmt = `select * from ${tableName}`;
 		var array = [];
 		con.query(queryStmt, (err, data) => {
@@ -646,7 +616,6 @@ router.get('/student/wans/id/:id/stid/:stid', (req, res) => {
 			res.send(JSON.stringify({ msg: 'Insertion Unsuccessful' }));
 			 }
 			else {
-				console.log("inside if");
 				for (var ques of data) {
 					var obj = {
 						ques: ques.ques,
@@ -717,8 +686,6 @@ router.post('/submit/student/:stid/assignID/:assid', (req, res) => {
 			res.send(JSON.stringify({ msg: 'Insertion Unsuccessful' }));
 			 }
 			else {
-				console.log(result)
-				console.log(assData)
 				var soln=[];
 				var rest = [];
 				for (data in assData)
@@ -726,9 +693,6 @@ router.post('/submit/student/:stid/assignID/:assid', (req, res) => {
 				for(i = 0; i<result.length; i++){
 					rest.push(result[i].answer)
 				}				
-				console.log(soln);
-				
-				console.log(rest);
 				var tableName = `assRes${req.params.assid}`;
 				var arrTotal = 0;
 				var obj = {
@@ -736,21 +700,15 @@ router.post('/submit/student/:stid/assignID/:assid', (req, res) => {
 				var i=0;
 				for(i=0; i<result.length; i++)
 				{				
-					console.log(i);
-					console.log(rest[i]);
-					console.log(soln[i+1])
 					if(rest[i]==soln[i+1]){	
 					obj['ques'+(i+1)] =1;
 					arrTotal+=1;}
 					else{
 						obj['ques'+(i+1)] =0;	
-						
 					}
 				}
 				if(i==3){
-					console.log(arrTotal)
 					obj['total']=arrTotal;
-				console.log(obj);
 				insert(tableName, obj, res);
 				res.send(JSON.stringify({message:"HI"}));
 				}
@@ -764,10 +722,6 @@ router.post('/submit/student/:stid/assignID/:assid', (req, res) => {
 var insert = function (tableName, assData, res) {
 	con.query(`INSERT INTO ${tableName} SET ?`, assData, function (err, result) {
 		if (err) {console.log(err);}
-			
-		else {
-
-		}
 	});
 }
 
@@ -776,10 +730,7 @@ router.get('/assignment/teacher/:teachid/assid/:assid', (req, res) => {
 	var check = req.check;
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
 	else {
-		var solnData = solnFetch(req.params.assid);
-		
-		
-	
+		var solnData = solnFetch(req.params.assid);	
 	}
 });
 
@@ -792,8 +743,7 @@ con.query(solnstmt1, (err, result) => {
 			res.send(JSON.stringify({ msg: 'Insertion Unsuccessful' }));
 			 }
 	else {
-		res.send(result);
-		
+		res.send(result);		
 	}
 });
 }
@@ -805,7 +755,6 @@ router.get('/studentsoln/assid/:assid/page/:page', (req, res) => {
 	else {
 		var page = req.params.page;
 		var stsolstmt1 = `select * from asssol${req.params.assid};`;
-		console.log(stsolstmt1);
 		con.query(stsolstmt1, (err, data) => {
 			if (err) {
 			console.log(err);
@@ -826,7 +775,6 @@ router.get('/studentres/assid/:assid/page/:page', (req, res) => {
 	else {
 		var page = req.params.page;
 		var stresstmt1 = `select * from assres${req.params.assid};`;
-		console.log(stsolstmt1);
 		con.query(stresstmt1, (err, data) => {
 			if (err) {
 			console.log(err);
@@ -849,8 +797,6 @@ var fetchpage = function (page, data, res) {
 	else {
 		ending = data.length;
 	}
-	console.log(`starting: ${starting}`);
-	console.log(`ending: ${ending}`);
 	for (var i = starting; i < ending; i++) {
 		arr.push(data[i]);
 	}
@@ -873,7 +819,6 @@ router.post('/update/general/assid/:assid', (req, res)=> {
 	}
 
 })
-
 
 //Teacher edit Questions details
 router.post('/update/questions/assid/:assid', (req, res)=> {

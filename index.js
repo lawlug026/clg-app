@@ -56,9 +56,6 @@ app.use(express.static(path.join(__dirname, 'dist')));
 // Set our api routes
 // app.use('/api', api);
 
-app.get('/test', function (req, res) {
-	res.sendfile("form.html");
-})
 var Bearer = 0;
 app.post('/login', function (req, res, next) {
 	var a1 = req.query.id;
@@ -99,7 +96,6 @@ app.post('/login', function (req, res, next) {
 		else	
 		{var year = getYear(a1);
 				var stmt = `select * from log${year} where Enrollment_No = '${a1}' && Password = '${a2}'`;
-				console.log(stmt);
 				con.query(stmt, function (err, result) {
 					if (err) res.send(JSON.stringify({ error: 'Invalid Credentials dvfd' }));
 					else {
@@ -147,25 +143,18 @@ app.post('/login', function (req, res, next) {
 });
 var getYear = function(id){
 	var year = id.substring(9,11);
-	console.log(year);
 	var curYear = today.getYear();
 	var current = (curYear.toString()).substring(1,3);
-	console.log(current);
 	var yearc = current-year+1;
-	console.log(yearc);
 	return yearc;
 }
 
-getYear('02620703114');
 var func = (bearer, roll) => {
-	console.log("st" + bearer);
 	var stmt1 = "INSERT into bearer VALUES(" + bearer + ", '" + roll + "');";
 	con.query(stmt1, function (err, result) {
 		if (err) console.log(err);
 		else console.log("Insertion successful");
 	});
-	console.log("Inside func");
-	console.log(bearer);
 	return bearer;
 }
 
@@ -177,7 +166,6 @@ app.post('/form', function (req, res) {
 		else {
 			if (!data[0]) { res.send("User not available"); }
 			else {
-				console.log(data);
 				res.send(data);
 			}
 		}
@@ -187,31 +175,7 @@ app.post('/form', function (req, res) {
 
 
 
-////////Assignment////////////////////
 
-var MysqlJson = require('mysql-json');
-var mysqlJson = new MysqlJson({
-	host: 'localhost',
-	user: 'root',
-	password: 'notdefined',
-	database: 'cbpgec'
-});
-var temp = 0;
-var assID;
-
-
-
-
-
-//assignment create
-
-var MysqlJson = require('mysql-json');
-var mysqlJson = new MysqlJson({
-	host: 'localhost',
-	user: 'root',
-	password: 'notdefined',
-	database: 'cbpgec'
-});
 var t
 var assID;
 var bearerCheck = function (req, res, next) {
@@ -243,7 +207,6 @@ app.use('/newform', newform);
 app.get('/form/fetch/student/:stid', function (req, res) {
 	var a = req.params.stid;
 	var year = getYear(a);
-	console.log(req.params.stid);
 	var check = req.check;
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
 	else {
@@ -263,105 +226,17 @@ app.get('/form/fetch/student/:stid', function (req, res) {
 		})
 	}
 })
-//function to fetch details from form
-function fetchfromform(id, res, year) {
-	var formstm3 = `select * from form${year} where Enrollment_No = ${id};`;
-	con.query(formstm3, (err, data) => {
-		if (err) console.log(err);
-		else {
-			var obj = {
-				Enrollment_No: data[0].Enrollment_No,
-				Name: data[0].Name,
-				Email: data[0].Email,
-				Semester: data[0].Semester,
-				Father_Name: data[0].Father_Name,
-				Mother_Name: data[0].Mother_Name,
-				Student_Mobile: data[0].Student_Mobile,
-				Father_Mobile: data[0].Father_Mobile,
-				Father_Occupation: data[0].Father_Occupation,
-				Mother_Occupation: data[0].Mother_Ocupation,
-				Father_Office_Address: data[0].Father_Office_Address,
-				Permanent_Address: data[0].Permanent_Address,
-				Correspondence_Address: data[0].Correspondence_Address,
-				Date_Of_Birth: data[0].Date_Of_Birth,
-				Training_Details: data[0].Training_Details,
-				Achievement_Details: data[0].Achievement_Details
-			}
-			console.log(obj);
-			res.send(obj);
-		}
-	})
-}
-//function to fetch details from logindata
-function fetchfromlogin(id, res, year) {
-	console.log(id);
-	var formstm2 = `select * from log${year} where Enrollment_No = ${id};`;
-	con.query(formstm2, (err, data) => {
-		if (err) console.log(err);
-		else {
-			if (!data[0]) { res.send(JSON.stringify({'message' : "Student not found"})); }
-			else {
-				var obj = {
-					Enrollment_No: data[0].Enrollment_No,
-					Name: data[0].Name,
-					Email: data[0].Email,
-					Semester: data[0].Semester,
-					Father_Name: '',
-					Mother_Name: '',
-					Student_Mobile: '',
-					Father_Mobile: '',
-					Father_Occupation: '',
-					Mother_Occupation: '',
-					Father_Office_Address: '',
-					Permanent_Address: '',
-					Correspondence_Address: '',
-					Date_Of_Birth: '',
-					Training_Details: '',
-					Achievement_Details: ''
-				}
-				console.log(obj);
-				res.send(obj);
-			}
-		}
-	})
-}
 
-//Insert Student solution into database
 
-var insert = function (tableName, assData, res) {
-	con.query(`INSERT INTO ${tableName} SET ?`, assData, function (err, result) {
-		if (err) console.log(err);
-		else {
 
-		}
-	});
-}
-
-var fetchpage = function (page, data, res) {
-
-	var arr = [];
-	var starting = (12 * page) - 12;
-	var ending;
-	if (data[12 * page]) {
-		ending = 12 * page
-	}
-	else {
-		ending = data.length;
-	}
-	console.log(`starting: ${starting}`);
-	console.log(`ending: ${ending}`);
-	for (var i = starting; i < ending; i++) {
-		arr.push(data[i]);
-	}
-	res.send(arr);
-}
 //fetch students details
-app.get('/details/student/page/:page', (req, res) => {
+app.get('/details/student/year/:year/page/:page', (req, res) => {
 	var check = req.check;
+	var year = req.params.year
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
 	else {
 		var page = req.params.page;
-		var ststmt1 = `select * from form;`;
+		var ststmt1 = `select * from log${year};`;
 		con.query(ststmt1, (err, data) => {
 			if (err) console.log(err);
 			else {
@@ -373,6 +248,7 @@ app.get('/details/student/page/:page', (req, res) => {
 //fetch teacher details
 app.get('/details/teacher/page/:page', (req, res) => {
 	var check = req.check;
+	
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
 	else {
 		var page = req.params.page;
@@ -457,16 +333,7 @@ app.delete('/form/delete/teacher/:tid', (req, res) => {
 	}
 })
 
-var deleteData = function (tableName, row, tid) {
-	console.log(row);
-	var delstm = `delete from ${tableName} where ${row} = ${tid};`
-	con.query(delstm, (err, data) => {
-		if (err) console.log(err);
-		else {
 
-		}
-	})
-}
 
 //Update form details
 app.post('/form/update/student/:stdid', (req, res) => {
@@ -480,15 +347,7 @@ app.post('/form/update/student/:stdid', (req, res) => {
 		update(form, assData, 'Enrollment_No', stid, res);
 	}
 })
-var update = function (tableName, assData, row, id, res) {
-	console.log(row);
-	con.query(`UPDATE ${tableName} SET ? where ${row} = ${id};`, assData, (err, data) => {
-		if (err) console.log(err);
-		else {
-			res.send(JSON.stringify({ msg: 'Update Successful' }));
-		}
-	})
-}
+
 
 
 //Insert form details
@@ -500,7 +359,6 @@ app.post('/form/insert/student', (req, res) => {
 		var stid = assData.Enrollment_No;
 		var year = getYear(stid);
 		var form = `form${year}`;
-		
 		insert(form, assData, res);
 		var indexSpace = assData.Name.indexOf(" ");
 		var password;
@@ -510,14 +368,11 @@ app.post('/form/insert/student', (req, res) => {
 		else {
 			password = assData.Name.toLowerCase();
 		}
-
-		console.log(password);
 		var loginData = {
 			Enrollment_No: assData.Enrollment_No,
 			Name: assData.Name,
 			Password: password,
 			Semester: assData.Semester
-
 		}
 		var log = `log${year}`;
 		insert(log, loginData, res);
@@ -545,36 +400,10 @@ app.post('/form/insert/teacher', (req, res) => {
 			Semester: 0,
 			Password: password
 		}
-		maxId(loginData, res);
-		
-		insert('teacher', assData, res);
-		
-		
-		
+		maxId(loginData, res);		
+		insert('teacher', assData, res);		
 	}
 })
-var roll;
-
-var maxId = function(loginData, res){
-	var stm = `select MAX(teacherId) from teacher`;
-		con.query(stm, (err, data)=>{
-			if (err) {
-			console.log(err);
-			res.send(JSON.stringify({ msg: 'Fetching unsuccessful' }));
-					 }
-			else{
-				roll = data[0]['MAX(teacherId)']+1;
-				loginData['Enrollment_No'] = roll;
-				
-
-				insert('logindatat', loginData, res);
-				res.send(JSON.stringify({ 'New Teacher Id': roll }));
-				
-
-			}
-		})
-
-}
 
 
 //subject & semester fetch according to teacher detials
@@ -653,21 +482,10 @@ app.post('/update/form', (req, res) => {
 		addColumn('form2', req.body.column, 'VARCHAR(255)', res);
 		addColumn('form3', req.body.column, 'VARCHAR(255)', res);
 		addColumn('form4', req.body.column, 'VARCHAR(255)', res);
-		
 	}
 })
 
-var addColumn = function(table, column, datatype, res){
-	var stmt = `ALTER TABLE ${table} ADD ${column} ${datatype};`;
-	con.query(stmt, (err, data) => {
-		if (err) {console.log(err);
-		res.send(JSON.stringify({"message":"Column Not Added Successfully"}));}
-		else{
-			res.send(JSON.stringify({"message":"Column Added Successfully"}));
-			
-		}
-	})
-}
+
 //route to delete the column of any form
 app.delete('/update/form/delete/:column', (req, res) => {
 	var check = req.check;
@@ -678,7 +496,6 @@ app.delete('/update/form/delete/:column', (req, res) => {
 		deleteColumn('form2', column, res);
 		deleteColumn('form3', column, res);
 		deleteColumn('form4', column, res);
-		
 	}
 })
 
@@ -695,8 +512,6 @@ app.get('/details/semester/:sem', (req, res) => {
 		}
 		else{
 			res.send(datas);
-			
-
 		}
 	})
 	
@@ -713,13 +528,9 @@ app.get('/list/semester/teacher/:tid', (req, res) => {
 		}
 		else{
 			res.send(datas);
-			
-
-		}
-	})
-	
+			}
+	})	
 }
-
 })
 
 
@@ -755,10 +566,8 @@ var getYearFromSem = function(sem){
 	if(sem==3 || sem==4) return 2;
 	if(sem==5 || sem==6) return 3;
 	if(sem==7 || sem==8) return 4;
-
 }
 
-console.log(getYearFromSem(8));
 
 
 var deleteColumn = function(table, column, res){
@@ -767,8 +576,145 @@ var deleteColumn = function(table, column, res){
 		if (err) {console.log(err);
 		res.send(JSON.stringify({"message":"Column Not Deleted Successfully"}));}
 		else{
-			res.send(JSON.stringify({"message":"Column Deleted Successfully"}));
-			
+			res.send(JSON.stringify({"message":"Column Deleted Successfully"}));			
+		}
+	})
+}
+
+var addColumn = function(table, column, datatype, res){
+	var stmt = `ALTER TABLE ${table} ADD ${column} ${datatype};`;
+	con.query(stmt, (err, data) => {
+		if (err) {console.log(err);
+		res.send(JSON.stringify({"message":"Column Not Added Successfully"}));}
+		else{
+			res.send(JSON.stringify({"message":"Column Added Successfully"}));
+		}
+	})
+}
+
+var roll;
+
+var maxId = function(loginData, res){
+	var stm = `select MAX(teacherId) from teacher`;
+		con.query(stm, (err, data)=>{
+			if (err) {
+			console.log(err);
+			res.send(JSON.stringify({ msg: 'Fetching unsuccessful' }));
+					 }
+			else{
+				roll = data[0]['MAX(teacherId)']+1;
+				loginData['Enrollment_No'] = roll;
+				insert('logindatat', loginData, res);
+				res.send(JSON.stringify({ 'New Teacher Id': roll }));
+			}
+		})
+
+}
+
+var update = function (tableName, assData, row, id, res) {
+	con.query(`UPDATE ${tableName} SET ? where ${row} = ${id};`, assData, (err, data) => {
+		if (err) console.log(err);
+		else {
+			res.send(JSON.stringify({ msg: 'Update Successful' }));
+		}
+	})
+}
+
+//Insert Student solution into database
+
+var insert = function (tableName, assData, res) {
+	con.query(`INSERT INTO ${tableName} SET ?`, assData, function (err, result) {
+		if (err) console.log(err);
+		else {
+
+		}
+	});
+}
+
+var fetchpage = function (page, data, res) {
+
+	var arr = [];
+	var starting = (12 * page) - 12;
+	var ending;
+	if (data[12 * page]) {
+		ending = 12 * page
+	}
+	else {
+		ending = data.length;
+	}
+	for (var i = starting; i < ending; i++) {
+		arr.push(data[i]);
+	}
+	res.send(arr);
+}
+
+var deleteData = function (tableName, row, tid) {
+	console.log(row);
+	var delstm = `delete from ${tableName} where ${row} = ${tid};`
+	con.query(delstm, (err, data) => {
+		if (err) console.log(err);
+		else {
+
+		}
+	})
+}
+
+//function to fetch details from form
+function fetchfromform(id, res, year) {
+	var formstm3 = `select * from form${year} where Enrollment_No = ${id};`;
+	con.query(formstm3, (err, data) => {
+		if (err) console.log(err);
+		else {
+			var obj = {
+				Enrollment_No: data[0].Enrollment_No,
+				Name: data[0].Name,
+				Email: data[0].Email,
+				Semester: data[0].Semester,
+				Father_Name: data[0].Father_Name,
+				Mother_Name: data[0].Mother_Name,
+				Student_Mobile: data[0].Student_Mobile,
+				Father_Mobile: data[0].Father_Mobile,
+				Father_Occupation: data[0].Father_Occupation,
+				Mother_Occupation: data[0].Mother_Ocupation,
+				Father_Office_Address: data[0].Father_Office_Address,
+				Permanent_Address: data[0].Permanent_Address,
+				Correspondence_Address: data[0].Correspondence_Address,
+				Date_Of_Birth: data[0].Date_Of_Birth,
+				Training_Details: data[0].Training_Details,
+				Achievement_Details: data[0].Achievement_Details
+			}
+			res.send(obj);
+		}
+	})
+}
+//function to fetch details from logindata
+function fetchfromlogin(id, res, year) {
+	var formstm2 = `select * from log${year} where Enrollment_No = ${id};`;
+	con.query(formstm2, (err, data) => {
+		if (err) console.log(err);
+		else {
+			if (!data[0]) { res.send(JSON.stringify({'message' : "Student not found"})); }
+			else {
+				var obj = {
+					Enrollment_No: data[0].Enrollment_No,
+					Name: data[0].Name,
+					Email: data[0].Email,
+					Semester: data[0].Semester,
+					Father_Name: '',
+					Mother_Name: '',
+					Student_Mobile: '',
+					Father_Mobile: '',
+					Father_Occupation: '',
+					Mother_Occupation: '',
+					Father_Office_Address: '',
+					Permanent_Address: '',
+					Correspondence_Address: '',
+					Date_Of_Birth: '',
+					Training_Details: '',
+					Achievement_Details: ''
+				}
+				res.send(obj);
+			}
 		}
 	})
 }
