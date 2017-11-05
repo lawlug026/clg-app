@@ -68,7 +68,7 @@ router.post('/create', (req, res) => {
 						ctstm+= `, ${b[col]} `;
 					}
 					else{
-						arr1.push(b[col],);
+						arr1.push(b[col]);
 						}
 				}
 				ctstm+=` from log${a[year]});`;
