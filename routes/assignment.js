@@ -717,7 +717,7 @@ router.get('/studentsoln/assid/:assid/page/:page', (req, res) => {
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
 	else {
 		var page = req.params.page;
-		var stsolstmt1 = `select * from asssol${req.params.assid};`;
+		var stsolstmt1 = `select * from assSol${req.params.assid};`;
 		con.query(stsolstmt1, (err, data) => {
 			if (err) {
 			console.log(err);
@@ -737,7 +737,7 @@ router.get('/studentres/assid/:assid/page/:page', (req, res) => {
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
 	else {
 		var page = req.params.page;
-		var stresstmt1 = `select * from assres${req.params.assid};`;
+		var stresstmt1 = `select * from assRes${req.params.assid};`;
 		con.query(stresstmt1, (err, data) => {
 			if (err) {
 			console.log(err);
