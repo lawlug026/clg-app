@@ -186,8 +186,6 @@ router.get('/semester/:sem/department/:dept/page/:page/stdid/:stdid', (req, res)
 					res.send(JSON.stringify({ msg: 'No Assignments Available' }));
 				}
 				else {
-					var stStatus = "";
-					var stColor = "";
 					var array = [];
 					var status = '';
 					var color = '';
@@ -257,56 +255,15 @@ router.get('/semester/:sem/department/:dept/page/:page/stdid/:stdid', (req, res)
 							instructions: dat.instructions,
 							status: status,
 							colorCode: color
-						}
-						var objSt = {
-							assid: dat.assid,
-							heading: dat.heading,
-							teacherId: dat.teacherId,
-							semester: dat.semester,
-							startTime: dat.startTime,
-							endTime: dat.endTime,
-							date: dat.date,
-							teacherName: dat.teacherName,
-							subject: dat.subject,
-							dateOfTest: dat.dateOfTest,
-							department: dat.department,
-							instructions: dat.instructions,
-							status: stStatus,
-							colorCode: stColor
-						}
-						if(status=="Expired"||status=="Progress"){
-								var stm = `select * from assSol${dat.assid} where studentId = ${req.params.stdid};`;
-								con.query(stm, (err, result)=>{
-									if (err) console.log(err);
-									else{
-										if(result[0]){
-											console.log("submitted")
-											objSt["status"] = "Submitted";
-											objSt["colorCode"] = "Green";
-											console.log(objSt);
-											array.push(objSt);
-										
-										}
-										else{objSt["status"] = "Expired";
-											objSt["color"] = "red";
-										console.log(objSt);
-									array.push(objSt);}
-									}
-								})
-								
-							}							
-						else{array.push(obj);
-						}	
+						}		
+						array.push(obj);							
 						changeStatus(obj);
 						c=c+1;
-						console.log(c);
-						
+						console.log(c);						
 							}
-							if(c=data.length) {res.send(array);}
-
-					}
-					
-					//fetchpage(page, array, res);
+							
+					}					
+					fetchpage(page, array, res);
 				}
 			}
 		)
