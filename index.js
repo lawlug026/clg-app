@@ -211,7 +211,7 @@ app.get('/form/fetch/student/:stid', function (req, res) {
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
 	else {
 
-		var formstm1 = `select * from form${year} where Enrollment_No = ${req.params.stid};`;
+		var formstm1 = `select * from Form${year} where Enrollment_No = ${req.params.stid};`;
 		con.query(formstm1, (err, data) => {
 			if (err) console.log(err);
 			else {
@@ -230,13 +230,16 @@ app.get('/form/fetch/student/:stid', function (req, res) {
 
 
 //fetch students details
-app.get('/details/student/year/:year/page/:page', (req, res) => {
+app.get('/details/student/semester/:sem/dept/:dept/page/:page', (req, res) => {
 	var check = req.check;
-	var year = req.params.year
+	var tmpsem = req.params.sem;
+		var sem = tmpsem.substring(0,1);
+		var year = getYearFromSem(sem);
+		var tabletmp = req.params.form;
+		var page = req.params.page
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
-	else {
-		var page = req.params.page;
-		var ststmt1 = `select * from log${year};`;
+	else {	
+		var ststmt1 = `select * from log${year} where Department = '${req.params.dept}';`;
 		con.query(ststmt1, (err, data) => {
 			if (err) console.log(err);
 			else {
