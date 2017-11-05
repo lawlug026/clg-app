@@ -175,7 +175,10 @@ router.get('/semester/:sem/department/:dept/page/:page/stdid/:stdid', (req, res)
 	var check = req.check;
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
 	else {
-		var queryStmt = `select * from assignment where semester = ${req.params.sem} && department = '${req.params.dept}' ORDER BY dateOfTest DESC`;
+		var tmpsem = req.params.sem;
+		var sem = tmpsem.substring(0,1);
+		var year = getYearFromSem(sem);
+		var queryStmt = `select * from assignment where semester = ${sem} && department = '${req.params.dept}' ORDER BY dateOfTest DESC`;
 		con.query(queryStmt, (err, data) => {
 			if (err) {
 			console.log(err);
@@ -400,9 +403,12 @@ var changeStatus = function(obj){
 
 router.get('/semester/:sem/teacher/:id', (req, res) => {
 	var check = req.check;
+	var tmpsem = req.params.sem;
+		var sem = tmpsem.substring(0,1);
+		var year = getYearFromSem(sem);
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
 	else {
-		var queryStmt = `select * from assignment where teacherId = ${req.params.id} && semester = ${req.params.sem} ORDER BY dateOfTest DESC;`;
+		var queryStmt = `select * from assignment where teacherId = ${req.params.id} && semester = ${sem} ORDER BY dateOfTest DESC;`;
 		con.query(queryStmt, (err, data) => {
 			if (err) {
 			console.log(err);

@@ -1,0 +1,48 @@
+var chai = require('chai');
+var assert = chai.assert;
+
+describe('Return The year of the student in which the student is studying', function() {
+  it('should should return year', function() {
+    
+    var getYearFromSem = function(sem){
+	if(sem==1 || sem==2) return 1;
+	if(sem==3 || sem==4) return 2;
+	if(sem==5 || sem==6) return 3;
+	if(sem==7 || sem==8) return 4;
+}
+
+var year = getYearFromSem(7);
+console.log("test for getting the Students year from the Semester has passed")
+
+    assert.equal(year, 4);
+  });
+});
+
+
+describe('Return The year of the student in which the student is studying from ID', function() {
+  it('should should return year', function() {
+
+  	var dateUTC = new Date();
+	var dateUTC = dateUTC.getTime() 
+	var today = new Date(dateUTC);
+
+
+//date shifting for IST timezone (+5 hours and 30 minutes)
+	today.setHours(today.getHours() + 5); 
+	today.setMinutes(today.getMinutes() + 30);
+	console.log(today);
+    
+    var getYear = function(id){
+	var year = id.substring(9,11);
+	var curYear = today.getYear();
+	var current = (curYear.toString()).substring(1,3);
+	var yearc = current-year+1;
+	return yearc;
+}
+
+var year = getYear('02620703114');
+console.log("Test for Getting the Year of the student from the Student's Enrollment ID has been passed")
+
+    assert.equal(year, 4);
+  });
+});
