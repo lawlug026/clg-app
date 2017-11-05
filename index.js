@@ -211,7 +211,7 @@ app.get('/form/fetch/student/:stid', function (req, res) {
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
 	else {
 
-		var formstm1 = `select * from Form${year} where Enrollment_No = ${req.params.stid};`;
+		var formstm1 = `select * from log${year} where Enrollment_No = ${req.params.stid};`;
 		con.query(formstm1, (err, data) => {
 			if (err) console.log(err);
 			else {
@@ -664,7 +664,7 @@ var deleteData = function (tableName, row, tid) {
 
 //function to fetch details from form
 function fetchfromform(id, res, year) {
-	var formstm3 = `select * from form${year} where Enrollment_No = ${id};`;
+	var formstm3 = `select * from log${year} where Enrollment_No = ${id};`;
 	con.query(formstm3, (err, data) => {
 		if (err) console.log(err);
 		else {
