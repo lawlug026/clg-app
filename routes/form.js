@@ -44,46 +44,47 @@ router.post('/create', (req, res) => {
 			res.send(JSON.stringify({"message":"Problem in creation form"}));}
 		else{
 			console.log("form table has been updated");
-				var stm = `show columns from log1`;
-	con.query(stm, (err, data)=>{
-		if (err) {
-			console.log(err);
-			res.send(JSON.stringify({ msg: 'Fetch Unsuccessful' }));
-		}
-		else{
-			for(i=0; i<data.length; i++){
-				arr.push(data[i].Field)
-			}
-			var b = newData.Column;
-			var c = newData.ColumnType;
-			a=newData.Year;
-			for (year in a){
-				var arr1=[];
-				var arr2=[];
-				var d = newData.Title+a[year];
-				var ctstm = `create table ${d} AS (SELECT Enrollment_No, Department, Name, Semester from log${a[year]}`;
-				for (col in b){
-					
-						arr1.push(b[col]);
-						
-				}
 				
-				con.query(ctstm, (err, data)=>{
-					if (err){console.log(err)}
-					else{
-						console.log("table Created");
-						}
-				})
-				for (each in arr1){				
-					var f = b.indexOf(arr1[each]);	
-					var e = c[f]+"(255)";
-					addColumn(d, arr1[each], e, res)
-				}
+		
+		var stm = `show columns from log1`;
+		con.query(stm, (err, data)=>{
+			if (err) {
+				console.log(err);
+				res.send(JSON.stringify({ msg: 'Fetch Unsuccessful' }));
 			}
-			res.send(JSON.stringify({"message":"Table Has Been Successfully created"}));
-		}
-	})
-		}
+			else{
+				for(i=0; i<data.length; i++){
+					arr.push(data[i].Field)
+				}
+				var b = newData.Column;
+				var c = newData.ColumnType;
+				a=newData.Year;
+				for (year in a){
+					var arr1=[];
+					var arr2=[];
+					var d = newData.Title+a[year];
+					var ctstm = `create table ${d} AS (SELECT Enrollment_No, Department, Name, Semester from log${a[year]});`;
+					for (col in b){
+						
+							arr1.push(b[col]);
+							
+					}
+					
+					con.query(ctstm, (err, data)=>{
+						if (err){console.log(err)}
+						else{
+							console.log("table Created");
+							}
+					})
+					for (each in arr1){				
+						var f = b.indexOf(arr1[each]);	
+						var e = c[f]+"(255)";
+						addColumn(d, arr1[each], e, res)
+					}
+				}
+				res.send(JSON.stringify({"message":"Table Has Been Successfully created"}));
+			}
+		})}
 	});
 	
 })	
@@ -177,10 +178,12 @@ router.get('/fetchform/table/:table/student/:stid', (req, res)=>{
 	var stid = req.params.stid;
 	var year = getYear(stid);
 	var title = `${req.params.table}${year}`;
-	var stm = `select * from ${title} where Enrollment_No = '${stid}'`;	
+	var stm = `select * from ${title} where Enrollment_No = '${stid}'`;
+	console.log(stm);	
 	con.query(stm, (err, result)=>{
 		if (err) console.log(err);
 		else {
+			console.log(result);
 			res.send(result);
 		}
 	})
