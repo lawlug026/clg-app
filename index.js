@@ -24,6 +24,11 @@ con.connect(function (err) {
 	console.log("connected");
 });
 
+
+setInterval(function () {
+    con.query('SELECT 1');
+}, 5000);
+
 var dateUTC = new Date();
 var dateUTC = dateUTC.getTime() 
 var today = new Date(dateUTC);
