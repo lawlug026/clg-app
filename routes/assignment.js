@@ -54,8 +54,9 @@ router.post('/', function (req, res, next) {
 			res.send(JSON.stringify({ msg: 'Insertion Unsuccessful' }));
 			 }
 			 else{
-			 	teacherName = result[0].teacherName;
+			 	var teacherName = result[0].teacherName;
 			 	console.log(teacherName);
+			 	assData['teacherName']=teacherName;
 
 		
 				if (res1.length == 0) {
