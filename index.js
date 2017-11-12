@@ -133,7 +133,36 @@ app.post('/login', function (req, res, next) {
 												if (err) console.log(err);
 												else{
 													if(!result1[0]){res.send(JSON.stringify({"messaege":"Invalid Credentials"}))}
-														else{res.send(result1);}
+														else{var roll = result1[0].Enrollment_No;
+							var name = result1[0].Password;
+							var email = result1[0].Email;
+							var username = result1[0].Name;
+							var semester = result1[0].Semester;
+							var stm = "select bear from bearer";
+							con.query(stm, (err, res1) => {
+								if (err) console.log(err);
+								else {
+									if (res1.length == 0) {
+										Bearer = 1;
+									}
+									else {
+										var ln = res1.length - 1;
+										Bearer = parseInt(res1[ln].bear) + 1;
+									}
+									Bearer = func(Bearer, roll);
+									if(roll.length<=4)
+									res.send(JSON.stringify({ access_token: Bearer, department:null, name: username, id: roll, email: email, semester: semester}));
+									else{
+										var ver = roll.substring(7,9);
+										if(ver==31)
+									res.send(JSON.stringify({ access_token: Bearer, department:'IT', name: username, id: roll, email: email, semester: semester}));
+										else {
+											res.send(JSON.stringify({ access_token: Bearer, department:'civil', name: username, id: roll, email: email, semester: semester}));
+										}
+		
+									}						
+										}
+								})}
 												}
 											})
 										}
