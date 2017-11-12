@@ -177,10 +177,8 @@ router.get('/fetchform/table/:table/student/:stid', (req, res)=>{
 	
 	var stid = req.params.stid;
 	var year = getYear(stid);
-	if(year<4){
-		var title1 = `${req.params.table}${year+1}`;
-	var stm = `select * from ${title}, ${title1} where Enrollment_No = '${stid}'`;
-	}
+
+	
 	var title = `${req.params.table}${year}`;
 	
 	var stm = `select * from ${title} where Enrollment_No = '${stid}'`;
@@ -189,7 +187,19 @@ router.get('/fetchform/table/:table/student/:stid', (req, res)=>{
 	con.query(stm, (err, result)=>{
 		if (err) console.log(err);
 		else {
-			if(!result[0]){res.send(JSON.stringify({"message": "No Student Available"}))}
+			if(!result[0]){
+				if(year<4){
+		var title1 = `${req.params.table}${year+1}`;
+		var stm = `select * from ${title1} where Enrollment_No = '${stid}';`;
+		con.query(stm, (err, result1)=>{
+			if (err) console.log(err);
+			else{
+				if(!result1[0]){res.send(JSON.stringify({"messaege":"Student unavailable"}))}
+					else{res.send(result1);}
+			}
+		})
+	}
+}
 			else{console.log(result);
 						res.send(result);}
 		}
