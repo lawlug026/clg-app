@@ -125,7 +125,21 @@ app.post('/login', function (req, res, next) {
 				con.query(stmt, function (err, result) {
 					if (err) res.send(JSON.stringify({ error: 'Invalid Credentials dvfd' }));
 					else {
-						if (result.length == 0) res.send(JSON.stringify({ 'error': 'Invalid Credentials' })); 
+						if (result.length == 0) {
+											if(year<4){
+											var title1 = `log${year+1}`;
+											var stm = `select * from ${title1} where Enrollment_No = '${a1}' && Password = '${a2}';`;
+											con.query(stm, (err, result1)=>{
+												if (err) console.log(err);
+												else{
+													if(!result1[0]){res.send(JSON.stringify({"messaege":"Invalid Credentials"}))}
+														else{res.send(result1);}
+												}
+											})
+										}
+										else{res.send(JSON.stringify({"messaege":"Invalid Credentials"}))}
+
+							 }
 						else {
 							var roll = result[0].Enrollment_No;
 							var name = result[0].Password;
