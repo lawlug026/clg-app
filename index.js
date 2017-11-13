@@ -17,6 +17,7 @@ var db_config = {
     user: 'root',
     password: 'notdefined',
     database: 'cbpgec'
+    
 };
 
 var con;
@@ -37,12 +38,19 @@ function handleDisconnect() {
     if(err.code === 'PROTOCOL_CONNECTION_LOST') { // Connection to the MySQL server is usually
       handleDisconnect();                         // lost due to either server restart, or a
     } else {                                      // connnection idle timeout (the wait_timeout
-      throw err;                                  // server variable configures this)
+      console.log(err);                                  // server variable configures this)
     }
   });
 }
 
 handleDisconnect();
+app.get('/test1', (req, res)=>{
+	var stm = "Select * from log1;";
+	con.query(stm, (err, result)=>{
+		if (err) console.log(err);
+		res.send(result)
+	})
+})
 
 
 
@@ -610,6 +618,8 @@ app.get('*', (req, res) => {
 	console.log("main");
 	res.sendFile(path.join(__dirname, 'dist/index.html'));
 });
+
+
 
 /**
  * Get port from environment and store in Express.
