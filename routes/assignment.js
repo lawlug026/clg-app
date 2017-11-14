@@ -75,7 +75,7 @@ router.post('/', function (req, res, next) {
 			else {
 				console.log('Fetching teacher details');
 				
-	var stmt12=`select teacherName from teacher where teacherId = ${assData.teacherId};`;
+	var stmt12=`select Name from logindatat where Enrollment_No = ${assData.teacherId};`;
 	con.query(stmt12, (err, result) => {
 		if (err) {
 			console.log(err);
