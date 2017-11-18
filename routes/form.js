@@ -4,7 +4,7 @@ var router = express.Router();
 var db_config = {
   host: 'localhost',
     user: 'root',
-    password: 'abhay',
+    password: 'notdefined',
     database: 'cbpgec'
 };
 
