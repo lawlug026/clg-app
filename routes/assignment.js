@@ -5,7 +5,7 @@ var con;
 var db_config = {
   host: 'localhost',
     user: 'root',
-    password: 'notdefined',
+    password: 'abhay',
     database: 'cbpgec'
     
 };
@@ -39,7 +39,7 @@ var MysqlJson = require('mysql-json');
 var mysqlJson = new MysqlJson({
 	host: 'localhost',
 	user: 'root',
-	password: 'notdefined',
+	password: 'abhay',
 	database: 'cbpgec'
 
 });
@@ -57,7 +57,7 @@ today.setHours(today.getHours() + 5);
 today.setMinutes(today.getMinutes() + 30);
 console.log(today);
 
-
+// router.use(bearerCheck);
 
 //Assignment Create
 router.post('/', function (req, res, next) {
@@ -702,7 +702,7 @@ router.post('/submit/student/:stid/assignID/:assid', (req, res) => {
 				if(i==3){
 					obj['total']=arrTotal;
 				insert(tableName, obj, res);
-				res.send(JSON.stringify({message:"HI"}));
+				res.send(JSON.stringify({message:"Submission Successful"}));
 				}
 			}
 		});

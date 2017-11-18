@@ -8,6 +8,9 @@ var cors = require('cors');
 var feedback = require('./routes/feedback');
 var assignment = require('./routes/assignment');
 var newform = require('./routes/form');
+var def = require('./routes/default');
+var config =require('./routes/config');
+const jwt = require('jsonwebtoken');
 
 const app = express();
 //Initialising the basic token
@@ -15,11 +18,12 @@ app.use(cors());
 var db_config = {
   host: 'localhost',
     user: 'root',
-    password: 'notdefined',
+    password: 'abhay',
     database: 'cbpgec'
     
 };
 
+app.set('secret',config.secret);
 var con;
 
 function handleDisconnect() {
@@ -119,8 +123,16 @@ app.post('/login', function (req, res, next) {
 								var ln = res1.length - 1;
 								Bearer = parseInt(res1[ln].bear) + 1;
 							}
-							Bearer = func(Bearer, roll);	
-							res.send(JSON.stringify({ access_token: Bearer, department:null, name: username, id: roll, email: email, semester: semester}));			
+							// Bearer = func(Bearer, roll);
+							const payload = {
+								username,
+								semester
+							}	
+							var token = jwt.sign(payload, app.get('secret'), {
+								expiresIn: 86400 // expires in 24 hours
+							  });
+							  Bearer = func(token, roll);
+							res.send(JSON.stringify({ token : token, access_token: token, department:null, name: username, id: roll, email: email, semester: semester}));			
 							}
 					});
 				}
@@ -157,15 +169,23 @@ app.post('/login', function (req, res, next) {
 										var ln = res1.length - 1;
 										Bearer = parseInt(res1[ln].bear) + 1;
 									}
-									Bearer = func(Bearer, roll);
+									// Bearer = func(Bearer, roll);
+									const payload = {
+										username,
+										semester
+									}	
+									var token = jwt.sign(payload, app.get('secret'), {
+										expiresIn: 86400 // expires in 24 hours
+									  });
+									  Bearer = func(token, roll);
 									if(roll.length<=4)
-									res.send(JSON.stringify({ access_token: Bearer, department:null, name: username, id: roll, email: email, semester: semester}));
+									res.send(JSON.stringify({ access_token: token, department:null, name: username, id: roll, email: email, semester: semester}));
 									else{
 										var ver = roll.substring(7,9);
 										if(ver==31)
-									res.send(JSON.stringify({ access_token: Bearer, department:'IT', name: username, id: roll, email: email, semester: semester}));
+									res.send(JSON.stringify({ access_token: token, department:'IT', name: username, id: roll, email: email, semester: semester}));
 										else {
-											res.send(JSON.stringify({ access_token: Bearer, department:'civil', name: username, id: roll, email: email, semester: semester}));
+											res.send(JSON.stringify({ access_token: token, department:'civil', name: username, id: roll, email: email, semester: semester}));
 										}
 		
 									}						
@@ -194,15 +214,24 @@ app.post('/login', function (req, res, next) {
 										var ln = res1.length - 1;
 										Bearer = parseInt(res1[ln].bear) + 1;
 									}
-									Bearer = func(Bearer, roll);
+									
+									const payload = {
+										username,
+										semester
+									}	
+									var token = jwt.sign(payload, app.get('secret'), {
+										expiresIn: 86400 // expires in 24 hours
+									  });
+									  Bearer = func(token, roll);
+								
 									if(roll.length<=4)
-									res.send(JSON.stringify({ access_token: Bearer, department:null, name: username, id: roll, email: email, semester: semester}));
+									res.send(JSON.stringify({ access_token: token, department:null, name: username, id: roll, email: email, semester: semester}));
 									else{
 										var ver = roll.substring(7,9);
 										if(ver==31)
-									res.send(JSON.stringify({ access_token: Bearer, department:'IT', name: username, id: roll, email: email, semester: semester}));
+									res.send(JSON.stringify({ access_token: token, department:'IT', name: username, id: roll, email: email, semester: semester}));
 										else {
-											res.send(JSON.stringify({ access_token: Bearer, department:'civil', name: username, id: roll, email: email, semester: semester}));
+											res.send(JSON.stringify({ access_token: token, department:'civil', name: username, id: roll, email: email, semester: semester}));
 										}
 		
 									}						
@@ -227,7 +256,7 @@ var getYear = function(id){
 }
 
 var func = (bearer, roll) => {
-	var stmt1 = "INSERT into bearer VALUES(" + bearer + ", '" + roll + "');";
+	var stmt1 = "INSERT into bearer (bear,roll) VALUES( '" + bearer + "' , '" + roll + "');";
 	con.query(stmt1, function (err, result) {
 		if (err) console.log(err);
 		else console.log("Insertion successful");
@@ -235,44 +264,12 @@ var func = (bearer, roll) => {
 	return bearer;
 }
 
-app.post('/form', function (req, res) {
-	var bear = req.query.bearer;
-	var stmt2 = "select * from logindata where token = '" + bear + "';";
-	con.query(stmt2, function (err, data) {
-		if (err) console.log(err);
-		else {
-			if (!data[0]) { res.send("User not available"); }
-			else {
-				res.send(data);
-			}
-		}
-	})
-});
-
 
 
 
 
 var t
 var assID;
-var bearerCheck = function (req, res, next) {
-	var bear = req.headers.authorization;
-	var bear = bear.substring(7, bear.length);
-	var stmt2 = `select * from bearer where bear = ${bear}`;
-	con.query(stmt2, function (err, data) {
-		if (err) console.log(err);
-		else {
-			if (!data[0]) {
-			req.check = true;
-				next();
-			}
-			else {
-				req.check = false;
-				next();
-			}
-		}
-	});
-}
 
 // app.use(bearerCheck);
 app.use('/feedback', feedback);
@@ -280,87 +277,6 @@ app.use('/assignment', assignment);
 app.use('/newform', newform);
 
 
-//form fetch from student
-app.get('/form/fetch/student/:stid', function (req, res) {
-	var a = req.params.stid;
-	var year = getYear(a);
-	var check = req.check;
-	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
-	else {
-
-		var formstm1 = `select * from log${year} where Enrollment_No = ${req.params.stid};`;
-		con.query(formstm1, (err, data) => {
-			if (err) console.log(err);
-			else {
-				if (!data[0]) {
-					fetchfromlogin(req.params.stid, res, year);
-				}
-				else {
-					fetchfromform(req.params.stid, res, year);
-				}
-			}
-
-		})
-	}
-})
-
-
-
-//fetch students details
-app.get('/details/student/semester/:sem/dept/:dept/page/:page', (req, res) => {
-	var check = req.check;
-	var tmpsem = req.params.sem;
-		var sem = tmpsem.substring(0,1);
-		var year = getYearFromSem(sem);
-		var tabletmp = req.params.form;
-		var page = req.params.page
-	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
-	else {	
-		var ststmt1 = `select * from log${year} where Department = '${req.params.dept}';`;
-		con.query(ststmt1, (err, data) => {
-			if (err) console.log(err);
-			else {
-				fetchpage(page, data, res);
-			}
-		})
-	}
-})
-//fetch teacher details
-app.get('/details/teacher/page/:page', (req, res) => {
-	var check = req.check;
-	
-	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
-	else {
-		var page = req.params.page;
-		var ststmt1 = `select * from teacher;`;
-		con.query(ststmt1, (err, data) => {
-			if (err) console.log(err);
-			else {
-				fetchpage(page, data, res);
-			}
-		})
-	}
-})
-
-
-//Show column Names from form table
-
-app.get('/showform', (req, res)=>{
-	var stm = `show columns from Form1`;
-	con.query(stm, (err, data)=>{
-		if (err) {
-			console.log(err);
-			res.send(JSON.stringify({ msg: 'Fetch Unsuccessful' }));
-			 }
-			else{				
-				var arr = [];
-				for(i=0; i<data.length; i++){					
-					arr.push(data[i].Field);
-				}
-				res.send(arr);				
-			}
-	})
-})
 
 // //Insert form details
 // app.post('/form/insert/student/:stdid', (req, res) => {
@@ -384,242 +300,14 @@ app.get('/showform', (req, res)=>{
 // })
 
 
-//Delete form details student
-app.delete('/form/delete/student/:stid', (req, res) => {
-	var check = req.check;
-	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' }));}
-	else {
-		var stid = req.params.stid;
-		var year = getYear(stid);
-		var form = `form${year}`;
-		var log = `log${year}`;
-		deleteData(form, 'Enrollment_No', stid);
-		deleteData(log, 'Enrollment_No', stid);
-		res.send(JSON.stringify({ message: 'Student Deletion Successful' }));
-	}
-})
-//delete teacher
-app.delete('/form/delete/teacher/:tid', (req, res) => {
-	var check = req.check;
-	var tid = req.params.tid;
-	if (check) {res.send(JSON.stringify({ msg: 'Access Denied' })); }
-	else {
 
 
-		deleteData('teacher', 'teacherId', tid);
-		deleteData('teaches', 'teacherId', tid);
-		deleteData('logindatat', 'Enrollment_No', tid);
-		res.send(JSON.stringify({ message: 'Teacher Deletion Successful' }));
-	}
-})
-
-
-
-//Update form details
-app.post('/form/update/student/:stdid', (req, res) => {
-	var check = req.check;
-	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
-	else {
-		var assData = req.body;
-		var stid = req.params.stdid;
-		var year = getYear(stid);
-		var form = `form${year}`;
-		update(form, assData, 'Enrollment_No', stid, res);
-	}
-})
-
-
-
-//Insert form details
-app.post('/form/insert/student', (req, res) => {
-	var check = req.check;
-	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
-	else {
-		var assData = req.body;
-		var stid = assData.Enrollment_No;
-		var year = getYear(stid);
-		var form = `form${year}`;
-		insert(form, assData, res);
-		var indexSpace = assData.Name.indexOf(" ");
-		var password;
-		if (indexSpace > 0) {
-			password = assData.Name.substring(0, indexSpace).toLowerCase();
-		}
-		else {
-			password = assData.Name.toLowerCase();
-		}
-		var loginData = {
-			Enrollment_No: assData.Enrollment_No,
-			Name: assData.Name,
-			Password: password,
-			Semester: assData.Semester
-		}
-		var log = `log${year}`;
-		insert(log, loginData, res);
-		res.send(JSON.stringify({ message: "success" }));
-
-	}
-});
-
-//Insert teacher details
-app.post('/form/insert/teacher', (req, res) => {
-	var check = req.check;
-	var assData = req.body;
-	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
-	else {
-		var indexSpace = assData.teacherName.indexOf(" ");
-		var password;
-		if (indexSpace > 0) {
-			password = assData.teacherName.substring(0, indexSpace).toLowerCase();
-		}
-		else {
-			password = assData.teacherName;
-		}
-		var loginData = {
-			Name: assData.teacherName,			
-			Semester: 0,
-			Password: password
-		}
-		maxId(loginData, res);		
-		insert('teacher', assData, res);		
-	}
-})
-
-
-//subject & semester fetch according to teacher detials
-app.get('/details/teacher/sem/subject/:tid', (req, res) => {
-	var check = req.check;
-	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
-	else {
-	var page = req.params.page;
-	var stm = `select semester, subName from teaches, subject where (subject.subId = teaches.subId) && teaches.teacherId = ${req.params.tid}`;
-	con.query(stm, (err, data) => {
-		if (err) console.log(err);
-		else {
-			res.send(data);
-		}
-	})
-	}
-});
-
-//teacher & semester fetch according to subject detials(Complete subject query)
-app.get('/details/subject/page/:page', (req, res) => {
-	var check = req.check;
-	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
-	else {
-	var page = req.params.page;
-	var stm = `select semester, subName, teacherName from subject,teacher, teaches where (teaches.teacherId = teacher.teacherId);`;
-	con.query(stm, (err, data) => {
-		if (err) console.log(err);
-		else {
-			fetchpage(page, data, res);
-		}
-	})
-}
-});
-
-// Fetch Student details semester wise
-app.get('/details/student/semester/:sem/page/:page', (req, res) => {
-	var check = req.check;
-	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
-	else {
-		var page = req.params.page;
-		var sem = req.params.sem;
-		var year = getYearFromSem(sem);
-		var ststmt1 = `select * from log${year} where Semester = ${req.params.sem};`;
-		con.query(ststmt1, (err, data) => {
-			if (err) console.log(err);
-			else {
-				fetchpage(page, data, res);
-			}
-		})
-	}
-})
-
-
-//Fetch Subject semester wise
-app.get('/details/subject/semester/:sem', (req, res) => {
-	var check = req.check;
-	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
-	else {
-		var ststmt1 = `select subName from subject where semester = ${req.params.sem};`;
-		con.query(ststmt1, (err, data) => {
-			if (err) console.log(err);
-			else {
-				res.send(data);}
-		})
-	}
-})
-
-
-// Update the form table, Adding a new column
-
-app.post('/update/form', (req, res) => {
-	var check = req.check;
-	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
-	else {
-		addColumn('log1', req.body.column, 'VARCHAR(255)', res);
-		addColumn('log2', req.body.column, 'VARCHAR(255)', res);
-		addColumn('log3', req.body.column, 'VARCHAR(255)', res);
-		addColumn('log4', req.body.column, 'VARCHAR(255)', res);
-	}
-})
-
-
-//route to delete the column of any form
-app.delete('/update/form/delete/:column', (req, res) => {
-	var check = req.check;
-	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
-	else {
-		var column = req.params.column;
-		deleteColumn('log1', column, res);
-		deleteColumn('log2', column, res);
-		deleteColumn('log3', column, res);
-		deleteColumn('log4', column, res);
-	}
-})
-
-
-app.get('/details/semester/:sem', (req, res) => {
-	var check = req.check;
-	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
-	else {
-	var sem = req.params.sem;
-	var stmt = `SELECT subName, subId FROM subject where semester = ${req.params.sem} && subId NOT IN (
-   SELECT DISTINCT subId FROM teaches);`;
-	con.query(stmt, (err, datas)=>{
-		if (err){ console.log(err);
-		}
-		else{
-			res.send(datas);
-		}
-	})
-	
-}
-});
-app.get('/list/semester/teacher/:tid', (req, res) => {
-	var check = req.check;
-	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
-	else {
-	var tid = req.params.tid;
-	var stmt = `SELECT semester from subject, teaches where teaches.subId = subject.subId && teacherId = ${tid};`;
-	con.query(stmt, (err, datas)=>{
-		if (err){ console.log(err);
-		}
-		else{
-			res.send(datas);
-			}
-	})	
-}
-})
-
+app.use(def);
 
 app.get('*', (req, res) => {
 	console.log("main");
 	res.sendFile(path.join(__dirname, 'dist/index.html'));
 });
-
-
 
 /**
  * Get port from environment and store in Express.

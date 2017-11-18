@@ -18,6 +18,7 @@
     "ejs": "2.5.6",
     "express": "4.15.2",
     "express-basic-token": "^1.0.0",
+    "jsonwebtoken": "^8.1.0",
     "mocha": "^4.0.1",
     "mysql": "^2.15.0",
     "mysql-json": "^0.1.2",
