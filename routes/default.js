@@ -79,7 +79,7 @@ var db_config = {
 
 console.log("inside default");
 router.post('/form', (req,res,next)=>{
-	bearerCheck();
+	bearerCheck(req,res,next);
 }, function (req, res) {
 	var bear = req.query.bearer;
 	var stmt2 = "select * from logindata where token = '" + bear + "';";
@@ -105,7 +105,7 @@ var getYear = function(id){
 console.log("inside default");
 //form fetch from student
 router.get('/form/fetch/student/:stid', (req,res,next)=>{
-	bearerCheck();
+	bearerCheck(req,res,next);
 }, function (req, res) {
 	var a = req.params.stid;
 	var year = getYear(a);
@@ -133,7 +133,7 @@ router.get('/form/fetch/student/:stid', (req,res,next)=>{
 
 //fetch students details
 router.get('/details/student/semester/:sem/dept/:dept/page/:page',(req,res,next)=>{
-	bearerCheck();
+	bearerCheck(req,res,next);
 }, (req, res) => {
 	var check = req.check;
 	var tmpsem = req.params.sem;
@@ -154,7 +154,7 @@ router.get('/details/student/semester/:sem/dept/:dept/page/:page',(req,res,next)
 })
 //fetch teacher details
 router.get('/details/teacher/page/:page',(req,res,next)=>{
-	bearerCheck();
+	bearerCheck(req,res,next);
 }, (req, res) => {
 	var check = req.check;
 	
@@ -175,7 +175,7 @@ router.get('/details/teacher/page/:page',(req,res,next)=>{
 //Show column Names from form table
 
 router.get('/showform',(req,res,next)=>{
-	bearerCheck();
+	bearerCheck(req,res,next);
 }, (req, res)=>{
 	var stm = `show columns from Form1`;
 	con.query(stm, (err, data)=>{
@@ -195,7 +195,7 @@ router.get('/showform',(req,res,next)=>{
 
 //Delete form details student
 router.delete('/form/delete/student/:stid',(req,res,next)=>{
-	bearerCheck();
+	bearerCheck(req,res,next);
 }, (req, res) => {
 	var check = req.check;
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' }));}
@@ -211,7 +211,7 @@ router.delete('/form/delete/student/:stid',(req,res,next)=>{
 })
 //delete teacher
 router.delete('/form/delete/teacher/:tid',(req,res,next)=>{
-	bearerCheck();
+	bearerCheck(req,res,next);
 }, (req, res) => {
 	var check = req.check;
 	var tid = req.params.tid;
@@ -230,7 +230,7 @@ router.delete('/form/delete/teacher/:tid',(req,res,next)=>{
 
 //Update form details
 router.post('/form/update/student/:stdid',(req,res,next)=>{
-	bearerCheck();
+	bearerCheck(req,res,next);
 }, (req, res) => {
 	var check = req.check;
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
@@ -247,7 +247,7 @@ router.post('/form/update/student/:stdid',(req,res,next)=>{
 
 //Insert form details
 router.post('/form/insert/student',(req,res,next)=>{
-	bearerCheck();
+	bearerCheck(req,res,next);
 }, (req, res) => {
 	var check = req.check;
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
@@ -280,7 +280,7 @@ router.post('/form/insert/student',(req,res,next)=>{
 
 //Insert teacher details
 router.post('/form/insert/teacher',(req,res,next)=>{
-	bearerCheck();
+	bearerCheck(req,res,next);
 }, (req, res) => {
 	var check = req.check;
 	var assData = req.body;
@@ -307,7 +307,7 @@ router.post('/form/insert/teacher',(req,res,next)=>{
 
 //subject & semester fetch according to teacher detials
 router.get('/details/teacher/sem/subject/:tid', (req,res,next)=>{
-	bearerCheck();
+	bearerCheck(req,res,next);
 },(req, res) => {
 	var check = req.check;
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
@@ -325,7 +325,7 @@ router.get('/details/teacher/sem/subject/:tid', (req,res,next)=>{
 
 //teacher & semester fetch according to subject detials(Complete subject query)
 router.get('/details/subject/page/:page',(req,res,next)=>{
-	bearerCheck();
+	bearerCheck(req,res,next);
 }, (req, res) => {
 	var check = req.check;
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
@@ -343,7 +343,7 @@ router.get('/details/subject/page/:page',(req,res,next)=>{
 
 // Fetch Student details semester wise
 router.get('/details/student/semester/:sem/page/:page', (req,res,next)=>{
-	bearerCheck();
+	bearerCheck(req,res,next);
 },(req, res) => {
 	var check = req.check;
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
@@ -364,7 +364,7 @@ router.get('/details/student/semester/:sem/page/:page', (req,res,next)=>{
 
 //Fetch Subject semester wise
 router.get('/details/subject/semester/:sem',(req,res,next)=>{
-	bearerCheck();
+	bearerCheck(req,res,next);
 }, (req, res) => {
 	var check = req.check;
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
@@ -382,7 +382,7 @@ router.get('/details/subject/semester/:sem',(req,res,next)=>{
 // Update the form table, Adding a new column
 
 router.post('/update/form', (req,res,next)=>{
-	bearerCheck();
+	bearerCheck(req,res,next);
 },(req, res) => {
 	var check = req.check;
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
@@ -397,7 +397,7 @@ router.post('/update/form', (req,res,next)=>{
 
 //route to delete the column of any form
 router.delete('/update/form/delete/:column',(req,res,next)=>{
-	bearerCheck();
+	bearerCheck(req,res,next);
 }, (req, res) => {
 	var check = req.check;
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
@@ -412,7 +412,7 @@ router.delete('/update/form/delete/:column',(req,res,next)=>{
 
 
 router.get('/details/semester/:sem',(req,res,next)=>{
-	bearerCheck();
+	bearerCheck(req,res,next);
 }, (req, res) => {
 	var check = req.check;
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
@@ -431,7 +431,7 @@ router.get('/details/semester/:sem',(req,res,next)=>{
 }
 });
 router.get('/list/semester/teacher/:tid',(req,res,next)=>{
-	bearerCheck();
+	bearerCheck(req,res,next);
 }, (req, res) => {
 	var check = req.check;
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
