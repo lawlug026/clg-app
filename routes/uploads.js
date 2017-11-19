@@ -119,10 +119,15 @@ router.get('/profile/:id', (req, res, next) => {
     var stmt = `select * from profilePics where roll = ${roll}`;
     con.query(stmt, (err, data) => {
         if (err) console.log(err);
-        else {
-
-            console.log(data[0]);
-            res.send(JSON.stringify(data[0]));
+        else{
+            if(!data[0]){
+                res.send(JSON.stringify({ msg : 'not-found' }));    
+            }
+            else{
+                console.log(data[0]);
+                res.send(JSON.stringify(data[0]));
+            }
+            
         }
     })
 })
