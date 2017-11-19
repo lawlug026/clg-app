@@ -7,7 +7,7 @@ var config =require('./config');
 var db_config = {
     host: 'localhost',
       user: 'root',
-      password: 'abhay',
+      password: 'notdefined',
       database: 'cbpgec'
   };
   
