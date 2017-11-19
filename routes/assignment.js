@@ -5,7 +5,7 @@ var con;
 var db_config = {
   host: 'localhost',
     user: 'root',
-    password: 'notdefined',
+    password: 'abhay',
     database: 'cbpgec'
     
 };
@@ -39,7 +39,7 @@ var MysqlJson = require('mysql-json');
 var mysqlJson = new MysqlJson({
 	host: 'localhost',
 	user: 'root',
-	password: 'notdefined',
+	password: 'abhay',
 	database: 'cbpgec'
 
 });

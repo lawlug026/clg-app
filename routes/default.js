@@ -7,7 +7,7 @@ var config =require('./config');
 var db_config = {
     host: 'localhost',
       user: 'root',
-      password: 'notdefined',
+      password: 'abhay',
       database: 'cbpgec'
   };
   
@@ -299,8 +299,11 @@ router.post('/form/insert/teacher',(req,res,next)=>{
 			Semester: 0,
 			Password: password
 		}
-		maxId(loginData, res);		
-		insert('teacher', assData, res);		
+		if(assData.email){
+			loginData['Email'] = assData.email;
+		}
+		maxId(loginData, res, req);		
+		// insert('teacher', assData, res);		
 	}
 })
 
@@ -481,7 +484,9 @@ var addColumn = function(table, column, datatype, res){
 
 var roll;
 
-var maxId = function(loginData, res){
+var maxId = function(loginData, res, req){
+	console.log("body");
+	console.log(req.body);
 	var stm = `select MAX(teacherId) from teacher`;
 		con.query(stm, (err, data)=>{
 			if (err) {
@@ -492,9 +497,16 @@ var maxId = function(loginData, res){
 				roll = data[0]['MAX(teacherId)']+1;
 				loginData['Enrollment_No'] = roll;
 				insert('logindatat', loginData, res);
-				loginData['teacherId'] = roll;	
-				insert('teacher', loginData, res);
-				res.send(JSON.stringify({ 'New Teacher Id': roll }));
+				var loginDataTeacher = {};
+				console.log(loginData);
+				loginDataTeacher['teacherId'] = roll;
+				loginDataTeacher['teacherName'] = loginData.Name;
+				loginDataTeacher['phoneNumber'] = req.body.phoneNumber;
+				if(loginData.Email){
+					loginDataTeacher['email'] = loginData.Email;
+				}	
+				insert('teacher', loginDataTeacher, res);
+				res.send(JSON.stringify({ 'teacherId': roll }));
 			}
 		})
 
