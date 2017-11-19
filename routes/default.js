@@ -492,6 +492,8 @@ var maxId = function(loginData, res){
 				roll = data[0]['MAX(teacherId)']+1;
 				loginData['Enrollment_No'] = roll;
 				insert('logindatat', loginData, res);
+				loginData['teacherId'] = roll;	
+				insert('teacher', loginData, res);
 				res.send(JSON.stringify({ 'New Teacher Id': roll }));
 			}
 		})
