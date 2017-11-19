@@ -5,7 +5,7 @@ var con;
 var db_config = {
   host: 'localhost',
     user: 'root',
-    password: 'notdefined',
+    password: 'abhay',
     database: 'cbpgec'
     
 };
@@ -39,7 +39,7 @@ var MysqlJson = require('mysql-json');
 var mysqlJson = new MysqlJson({
 	host: 'localhost',
 	user: 'root',
-	password: 'notdefined',
+	password: 'abhay',
 	database: 'cbpgec'
 
 });
@@ -202,8 +202,9 @@ var color = "";
 router.get('/semester/:sem/department/:dept/page/:page/stdid/:stdid', (req, res) => {
 	var page = req.params.page;
 	var check = req.check;
-	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
+	if (check) {  res.send(JSON.stringify({ msg: 'Access Denied' })); }
 	else {
+		console.log("working");
 		var tmpsem = req.params.sem;
 		var sem = tmpsem.substring(0,1);
 		var year = getYearFromSem(sem);
@@ -294,8 +295,9 @@ router.get('/semester/:sem/department/:dept/page/:page/stdid/:stdid', (req, res)
 						console.log(c);						
 							}
 							
-					}					
-					fetchpage(page, array, res);
+							fetchpage(page, array, res);
+						}					
+					
 				}
 			}
 		)
@@ -303,6 +305,7 @@ router.get('/semester/:sem/department/:dept/page/:page/stdid/:stdid', (req, res)
 })
 
 var fetchpage = function (page, data, res) {
+	console.log(data);
 	var arr = [];
 	var starting = (12 * page) - 12;
 	var ending;

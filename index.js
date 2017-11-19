@@ -10,6 +10,7 @@ var assignment = require('./routes/assignment');
 var newform = require('./routes/form');
 var def = require('./routes/default');
 var config =require('./routes/config');
+var upload = require('./routes/uploads');
 const jwt = require('jsonwebtoken');
 
 const app = express();
@@ -18,7 +19,7 @@ app.use(cors());
 var db_config = {
   host: 'localhost',
     user: 'root',
-    password: 'notdefined',
+    password: 'abhay',
     database: 'cbpgec'
     
 };
@@ -275,7 +276,7 @@ var assID;
 app.use('/feedback', feedback);
 app.use('/assignment', assignment);
 app.use('/newform', newform);
-
+app.use(upload);
 
 
 // //Insert form details
