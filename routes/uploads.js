@@ -11,10 +11,10 @@ var base64Img = require('base64-img');
 
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'uploads/')
+        cb(null, '../uploads/')
     },
     filename: function (req, file, cb) {
-        cb(null, file.fieldname + '-' + Date.now() + '.png')
+        cb(null, file.fieldname + '-' + req.params.id + '.png')
     }
 })
 
@@ -94,7 +94,7 @@ router.post('/profile/:id', upload.single('avatar'), function (req, res, next) {
     // req.file is the `avatar` file
     // req.body will hold the text fields, if there were any
     console.log(req.file);
-    base64Img.base64(path.join(__dirname, '../uploads', req.file.filename), (err, data) => {
+    base64Img.base64(path.join(__dirname, '../../uploads', req.file.filename), (err, data) => {
         console.log(data);
         var insertData = {
             roll: req.params.id,
