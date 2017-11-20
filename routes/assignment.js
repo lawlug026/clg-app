@@ -707,7 +707,8 @@ router.post('/submit/student/:stid/assignID/:assid', (req, res) => {
 					}
 				}
 				console.log(i);
-				if(i==3){
+				console.log(result.length)
+				if(i==result.length){
 					obj['total']=arrTotal;
 					console.log("calculation finish")
 				insert(tableName, obj, res);
