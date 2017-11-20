@@ -93,7 +93,22 @@ var bearerCheck = function (req, res, next) {
 router.post('/profile/:id', upload.single('avatar'), function (req, res, next) {
     // req.file is the `avatar` file
     // req.body will hold the text fields, if there were any
+
+    var stmt = `delete from profilePics where roll = ${req.params.id}`;
+    con.query(stmt, (err,data) => {
+         updateProfilePic(res , req, next);
+        // else{
+        //     updateProfilePic(res , req, next);
+        // }
+    })
+
+    // res.sendFile(path.join(__dirname, '../uploads', req.file.filename));
+    // res.sendFile(`../${req.file.path}`);
+})
+
+function updateProfilePic(res, req, next){
     console.log(req.file);
+    // deleteProfilePic(req, res, next);
     base64Img.base64(path.join(__dirname, '../../uploads', req.file.filename), (err, data) => {
         console.log(data);
         var insertData = {
@@ -108,10 +123,7 @@ router.post('/profile/:id', upload.single('avatar'), function (req, res, next) {
         });
         // res.send(JSON.stringify({ file : data }))
     })
-
-    // res.sendFile(path.join(__dirname, '../uploads', req.file.filename));
-    // res.sendFile(`../${req.file.path}`);
-})
+}
 
 router.get('/profile/:id', (req, res, next) => {
 
@@ -132,6 +144,18 @@ router.get('/profile/:id', (req, res, next) => {
     })
 })
 
+router.delete('/profile/:id', (req,res,next) => {
+    roll  = req.params.id;
+    var stmt = `delete from profilePics where roll = ${roll}`;
+    con.query(stmt, (err, data) => {
+        if(err) {console.log(err);
+            res.send( JSON.stringify({msg : 'Deletion Unsuccessful'}));
+        }
+        else{
+            res.send( JSON.stringify({msg : 'Deletion Successful'}));
+        }
+    })
+})
 // router.use(bearerCheck);
 
 
