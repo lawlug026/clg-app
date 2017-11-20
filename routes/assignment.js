@@ -674,6 +674,7 @@ router.post('/submit/student/:stid/assignID/:assid', (req, res) => {
 		var assData = req.body;
 		var resData = [`studentID:${req.params.stid}`];
 		insert(tableName, assData, res);
+		console.log("finding result");
 		var solnstmt1 = `select answer from ass${req.params.assid};`;
 		con.query(solnstmt1, (err, result) => {
 			if (err) {
@@ -681,6 +682,7 @@ router.post('/submit/student/:stid/assignID/:assid', (req, res) => {
 			res.send(JSON.stringify({ msg: 'Insertion Unsuccessful' }));
 			 }
 			else {
+				console.log("getting correct soln")
 				var soln=[];
 				var rest = [];
 				for (data in assData)
@@ -690,6 +692,7 @@ router.post('/submit/student/:stid/assignID/:assid', (req, res) => {
 				}				
 				var tableName = `assRes${req.params.assid}`;
 				var arrTotal = 0;
+				console.log("Calculation of marks begin");
 				var obj = {
 					studentID:req.params.stid}
 				var i=0;
@@ -704,6 +707,7 @@ router.post('/submit/student/:stid/assignID/:assid', (req, res) => {
 				}
 				if(i==3){
 					obj['total']=arrTotal;
+					console.log("calculation finish")
 				insert(tableName, obj, res);
 				res.send(JSON.stringify({message:"Submission Successful"}));
 				}
