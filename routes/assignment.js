@@ -697,7 +697,8 @@ router.post('/submit/student/:stid/assignID/:assid', (req, res) => {
 					studentID:req.params.stid}
 				var i=0;
 				for(i=0; i<result.length; i++)
-				{				
+				{	
+				console.log("inside loop")			
 					if(rest[i]==soln[i+1]){	
 					obj['ques'+(i+1)] =1;
 					arrTotal+=1;}
