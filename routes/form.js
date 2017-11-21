@@ -197,6 +197,7 @@ router.delete('/update/form/delete/table/:table/column/:column', (req, res) => {
 		deleteColumn(`${table}2`, column, res);
 		deleteColumn(`${table}3`, column, res);
 		deleteColumn(`${table}4`, column, res);
+		res.send(JSON.stringify({"message":"Column Deleted Successfully"}));			
 	}
 })
 
@@ -355,7 +356,7 @@ var deleteColumn = function(table, column, res){
 		if (err) {console.log(err);
 		res.send(JSON.stringify({"message":"Column Not Deleted Successfully"}));}
 		else{
-			res.send(JSON.stringify({"message":"Column Deleted Successfully"}));			
+			
 		}
 	})
 }
