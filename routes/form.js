@@ -146,10 +146,26 @@ router.post('/update/form/:form', (req, res) => {
 		addColumn(`${table}2`, req.body.column, 'VARCHAR(255)', res);
 		addColumn(`${table}3`, req.body.column, 'VARCHAR(255)', res);
 		addColumn(`${table}4`, req.body.column, 'VARCHAR(255)', res);
+		req.send(JSON.stringify({message: "Column Successfully added"}))
 	}
 })
 
+router.post('/password/:id', (req, res)=> {
+	var check = req.check;
+	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
+	else{
+		var id = req.params.id;
+		var year = getYear(id);
+		var table = `log${year}`; 
+		var newPass = {Password : req.body.new}
+		// var stm = ` ${table} where Enrollment_No = ${id};`;
+		if(req.body.old==req.body.confirmOld)
+			update(table, newPass, 'Enrollment_No', id, res);
+		else{res.send(JSON.stringify({msg: 'Password does not match'}));}
 
+	}
+
+})
 //route to delete the column of any form
 router.delete('/update/form/delete/table/:table/column/:column', (req, res) => {
 	var check = req.check;
