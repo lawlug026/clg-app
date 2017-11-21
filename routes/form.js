@@ -149,7 +149,7 @@ router.post('/update/form/:form', (req, res) => {
 		req.send(JSON.stringify({message: "Column Successfully added"}))
 	}
 })
-
+//Update Password
 router.post('/password/:id', (req, res)=> {
 	var check = req.check;
 	if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
@@ -158,9 +158,29 @@ router.post('/password/:id', (req, res)=> {
 		var year = getYear(id);
 		var table = `log${year}`; 
 		var newPass = {Password : req.body.new}
-		// var stm = ` ${table} where Enrollment_No = ${id};`;
-		if(req.body.old==req.body.confirmOld)
-			update(table, newPass, 'Enrollment_No', id, res);
+		if(req.body.old==req.body.confirmOld){
+			if (id.length<4){
+				update('logindatat', newPass, 'Enrollment_No', id, res)
+			}
+			var stm = ` select * from ${table} where Enrollment_No = ${id};`;
+			con.query(stm, (err, result)=> {
+				if (err) console.log(err)
+					else{
+						if (!result[0]){
+							if (year<4)
+							{
+								var yearL = year+1;
+								console.log(yearL);
+								var tableL = `log${yearL}`;
+								update(tableL, newPass, 'Enrollment_No', id, res);
+							}			
+						}
+						else{
+								update(table, newPass, 'Enrollment_No', id, res);
+						}
+					}
+			})
+		}
 		else{res.send(JSON.stringify({msg: 'Password does not match'}));}
 
 	}
