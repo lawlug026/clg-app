@@ -146,7 +146,7 @@ router.post('/update/form/:form', (req, res) => {
 		addColumn(`${table}2`, req.body.column, 'VARCHAR(255)', res);
 		addColumn(`${table}3`, req.body.column, 'VARCHAR(255)', res);
 		addColumn(`${table}4`, req.body.column, 'VARCHAR(255)', res);
-		req.send(JSON.stringify({message: "Column Successfully added"}))
+		res.send(JSON.stringify({message: "Column Successfully added"}))
 	}
 })
 //Update Password
