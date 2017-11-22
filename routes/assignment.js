@@ -683,10 +683,15 @@ router.post('/submit/student/:stid/assignID/:assid', (req, res) => {
 			 }
 			else {
 				console.log("getting correct soln")
-				var soln=[];
+				var soln=[0];
 				var rest = [];
+				var i=1;
 				for (data in assData)
-					soln.push(assData[data]); 
+				{
+					soln.push(assData['ques'+i]);
+					i++;
+				}
+					 
 				for(i = 0; i<result.length; i++){
 					rest.push(result[i].answer)
 				}				
