@@ -93,7 +93,8 @@ var bearerCheck = function (req, res, next) {
 router.post('/profile/:id', upload.single('avatar'), function (req, res, next) {
     // req.file is the `avatar` file
     // req.body will hold the text fields, if there were any
-
+    bearerCheck(req,res,next); 
+},(req,res,next) => {
     var stmt = `delete from profilePics where roll = ${req.params.id}`;
     con.query(stmt, (err,data) => {
          updateProfilePic(res , req, next);
@@ -107,6 +108,7 @@ router.post('/profile/:id', upload.single('avatar'), function (req, res, next) {
 })
 
 function updateProfilePic(res, req, next){
+    
     console.log(req.file);
     // deleteProfilePic(req, res, next);
     base64Img.base64(path.join(__dirname, '../../uploads', req.file.filename), (err, data) => {
@@ -126,7 +128,8 @@ function updateProfilePic(res, req, next){
 }
 
 router.get('/profile/:id', (req, res, next) => {
-
+    bearerCheck(req,res,next); 
+},(req,res,next) => {
     roll = req.params.id;
     var stmt = `select * from profilePics where roll = ${roll}`;
     con.query(stmt, (err, data) => {
@@ -145,6 +148,8 @@ router.get('/profile/:id', (req, res, next) => {
 })
 
 router.delete('/profile/:id', (req,res,next) => {
+    bearerCheck(req,res,next); 
+},(req,res,next) => {
     roll  = req.params.id;
     var stmt = `delete from profilePics where roll = ${roll}`;
     con.query(stmt, (err, data) => {
