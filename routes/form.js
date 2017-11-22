@@ -400,7 +400,9 @@ var insert = function (tableName, assData, res) {
 
 var update = function (tableName, assData, row, id, res) {
 	con.query(`UPDATE ${tableName} SET ? where ${row} = '${id}';`, assData, (err, data) => {
-		if (err) console.log(err);
+		if (err) {console.log(err);
+			res.send(JSON.stringify({ msg: 'Password Update Unsuccessful' }));
+		}
 		else {
 			res.send(JSON.stringify({ msg: 'Update Successful' }));
 		}
