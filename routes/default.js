@@ -103,6 +103,8 @@ var getYear = function(id){
 }
 
 console.log("inside default");
+
+
 //form fetch from student
 router.get('/form/fetch/student/:stid', (req,res,next)=>{
 	bearerCheck(req,res,next);
