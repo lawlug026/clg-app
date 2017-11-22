@@ -153,14 +153,14 @@ router.post('/create', (req, res,next) => {
 })
 
 //show the columns of the form
-router.get('/showform/table/:table', (req, res) => {
+router.get('/showform/table/:table', (req, res, next) => {
 	bearerCheck(req,res,next); 
 },(req,res,next) => {
 	var table = `${req.params.table}1`;
 	showForm(table, res);
 })
 //update general form details
-router.post('/updateformdetails/table/:table', (req, res) => {
+router.post('/updateformdetails/table/:table', (req, res, next) => {
 	bearerCheck(req,res,next); 
 },(req,res,next) => {
 	var dataForm = req.body;
@@ -170,7 +170,7 @@ router.post('/updateformdetails/table/:table', (req, res) => {
 })
 
 //Update the student details in the form
-router.post('/updateform/table/:table/student/:stid', (req, res) => {
+router.post('/updateform/table/:table/student/:stid', (req, res, next) => {
 	bearerCheck(req,res,next); 
 },(req,res,next) => {
 	var dataForm = req.body;
@@ -180,7 +180,7 @@ router.post('/updateform/table/:table/student/:stid', (req, res) => {
 	update(title, dataForm, 'Enrollment_No', stid, res);
 })
 //addition of the form
-router.post('/update/form/:form', (req, res) => {
+router.post('/update/form/:form', (req, res, next) => {
 	bearerCheck(req,res,next); 
 },(req,res,next) => {
 	var check = req.check;
@@ -195,7 +195,7 @@ router.post('/update/form/:form', (req, res) => {
 	}
 })
 //Update Password
-router.post('/password/:id', (req, res) => {
+router.post('/password/:id', (req, res, next) => {
 	bearerCheck(req,res,next); 
 },(req,res,next) => {
 	// var check = req.check;
@@ -235,7 +235,7 @@ router.post('/password/:id', (req, res) => {
 
 })
 //route to delete the column of any form
-router.delete('/update/form/delete/table/:table/column/:column', (req, res) => {
+router.delete('/update/form/delete/table/:table/column/:column', (req, res, next) => {
 	bearerCheck(req,res,next); 
 },(req,res,next) => {
 	// var check = req.check;
@@ -252,7 +252,7 @@ router.delete('/update/form/delete/table/:table/column/:column', (req, res) => {
 })
 
 //fetch List of forms created by admin
-router.get('/fetchformlist', (req, res) => {
+router.get('/fetchformlist', (req, res, next) => {
 	bearerCheck(req,res,next); 
 },(req,res,next) => {
 	// var check = req.check;
@@ -273,7 +273,7 @@ router.get('/fetchformlist', (req, res) => {
 
 })
 //All Students Fetch semester wise
-router.get('/details/student/form/:form/sem/:sem/page/:page', (req, res) => {
+router.get('/details/student/form/:form/sem/:sem/page/:page', (req, res, next) => {
 	bearerCheck(req,res,next); 
 },(req,res,next) => {
 	// var check = req.check;
@@ -290,7 +290,7 @@ router.get('/details/student/form/:form/sem/:sem/page/:page', (req, res) => {
 })
 
 //Fetch Details student wise
-router.get('/fetchform/table/:table/student/:stid', (req, res) => {
+router.get('/fetchform/table/:table/student/:stid', (req, res, next) => {
 	bearerCheck(req,res,next); 
 },(req,res,next) => {
 	var stid = req.params.stid;
