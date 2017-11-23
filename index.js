@@ -102,7 +102,7 @@ app.post('/login', function (req, res, next) {
 	var a4 = JSON.parse(JSON.stringify(req.headers));
 	if (a4.authorization == 'Basic cbpgec-a24-u26-n20-p21') {
 		if(a1 == 0 || a1.length<5){
-			var stmt = `select * from logindatat where Enrollment_No = '${a1}' && Password = '${a2}'`;
+			var stmt = `select * from logindatat where Enrollment_No = 'con.escape(${a1})' && Password = 'con.escape(${a2})'`;
 			con.query(stmt, function (err, result) {
 			if (err) {
 				res.send(JSON.stringify({ error: 'Invalid Credentials dvfd' }));
@@ -142,14 +142,14 @@ app.post('/login', function (req, res, next) {
 		}
 		else	
 		{var year = getYear(a1);
-				var stmt = `select * from log${year} where Enrollment_No = '${a1}' && Password = '${a2}'`;
+				var stmt = `select * from log${year} where Enrollment_No = 'con.escape(${a1})' && Password = 'con.escape(${a2})'`;
 				con.query(stmt, function (err, result) {
 					if (err) res.send(JSON.stringify({ error: 'Invalid Credentials dvfd' }));
 					else {
 						if (result.length == 0) {
 											if(year<4){
 											var title1 = `log${year+1}`;
-											var stm = `select * from ${title1} where Enrollment_No = '${a1}' && Password = '${a2}';`;
+											var stm = `select * from ${title1} where Enrollment_No = 'con.escape(${a1})' && Password = 'con.escape(${a2})'';`;
 											con.query(stm, (err, result1)=>{
 												if (err) console.log(err);
 												else{
