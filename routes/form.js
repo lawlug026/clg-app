@@ -214,7 +214,7 @@ router.post('/password/:id', (req, res, next) => {
 										update('logindatat', newPass, 'Enrollment_No', id, res);
 									}
 									else{
-										res.send(JSON.stringify({"message":"Provide correct old password"}))
+										res.send(JSON.stringify({"msg":"Provide correct old password"}))
 									}
 								}
 								})				
@@ -239,7 +239,7 @@ router.post('/password/:id', (req, res, next) => {
 										update(tableL, newPass, 'Enrollment_No', id, res);}
 									
 									else{
-										res.send(JSON.stringify({"message":"Provide correct old password"}))
+										res.send(JSON.stringify({"msg":"Provide correct old password"}))
 									}
 								}
 								})
@@ -255,7 +255,7 @@ router.post('/password/:id', (req, res, next) => {
 										update(table, newPass, 'Enrollment_No', id, res);
 									}
 									else{
-										res.send(JSON.stringify({"message":"Provide correct old password"}))
+										res.send(JSON.stringify({"msg":"Provide correct old password"}))
 									}
 			}					
 								})
