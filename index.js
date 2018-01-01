@@ -255,7 +255,7 @@ var getYear = function(id){
 	var year = id.substring(9,11);
 	var curYear = today.getYear();
 	var current = (curYear.toString()).substring(1,3);
-	var yearc = current-year+1;
+	var yearc = current-year;
 	return yearc;
 }
 
