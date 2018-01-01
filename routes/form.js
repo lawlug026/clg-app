@@ -198,16 +198,26 @@ router.post('/update/form/:form', (req, res, next) => {
 router.post('/password/:id', (req, res, next) => {
 	bearerCheck(req,res,next); 
 },(req,res,next) => {
-	// var check = req.check;
-	// if (check) { res.send(JSON.stringify({ msg: 'Access Denied' })); }
-	// else {
 		var id = req.params.id;
 		var year = getYear(id);
 		var table = `log${year}`;
 		var newPass = { Password: req.body.new }
 		if (req.body.old == req.body.confirmOld) {
 			if (id.length < 4) {
-				update('logindatat', newPass, 'Enrollment_No', id, res)
+				var stm = `select Password from logindatat where Enrollment_No = ${id}`;
+							con.query(stm, (err, result)=>{
+								if (err) console.log(err);
+								else{
+									console.log("working");
+									if (result[0].Password == req.body.old){
+										console.log("updation");
+										update('logindatat', newPass, 'Enrollment_No', id, res);
+									}
+									else{
+										res.send(JSON.stringify({"msg":"Provide correct old password"}))
+									}
+								}
+								})				
 			}
 			else {
 				var stm = ` select * from ${table} where Enrollment_No = ${id};`;
@@ -219,11 +229,37 @@ router.post('/password/:id', (req, res, next) => {
 								var yearL = year + 1;
 								console.log(yearL);
 								var tableL = `log${yearL}`;
-								update(tableL, newPass, 'Enrollment_No', id, res);
-							}
-						}
-						else {
-							update(table, newPass, 'Enrollment_No', id, res);
+								var stm = `select Password from ${tableL} where Enrollment_No = ${id}`;
+								con.query(stm, (err, result)=>{
+								if (err) console.log(err);
+								else{
+									console.log("working");
+									if (result[0].Password == req.body.old){
+										console.log("updation");
+										update(tableL, newPass, 'Enrollment_No', id, res);}
+									
+									else{
+										res.send(JSON.stringify({"msg":"Provide correct old password"}))
+									}
+								}
+								})
+							}}
+						else {					
+							var stm = `select Password from ${table} where Enrollment_No = ${id}`;
+							con.query(stm, (err, result)=>{
+								if (err) console.log(err);
+								else{
+									console.log("working");
+									if (result[0].Password == req.body.old){
+										console.log("updation");
+										update(table, newPass, 'Enrollment_No', id, res);
+									}
+									else{
+										res.send(JSON.stringify({"msg":"Provide correct old password"}))
+									}
+			}					
+								})
+				
 						}
 					}
 				})
