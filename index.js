@@ -105,6 +105,7 @@ app.post('/login', function (req, res, next) {
 			var stmt = `select * from logindatat where Enrollment_No = '${a1}' && Password = '${a2}'`;
 			con.query(stmt, function (err, result) {
 			if (err) {
+				console.log(err);
 				res.send(JSON.stringify({ error: 'Invalid Credentials dvfd' }));
 			}
 			else {
